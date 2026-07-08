@@ -1,7 +1,7 @@
 :root {
   --text: #6b6375;
   --text-h: #08060d;
-  --bg: #fff;
+  --bg: #eff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
   --accent: #aa3bff;
@@ -48,6 +48,36 @@
   #social .button-icon {
     filter: invert(1) brightness(2);
   }
+}
+
+/* Dark Mode B&W Theme Overrides */
+[data-bs-theme="dark"] {
+  --bs-primary: #f8f9fa;
+  --bs-primary-rgb: 248, 249, 250;
+  --bs-primary-text-emphasis: #f8f9fa;
+  --bs-link-color: #f8f9fa;
+  --bs-link-hover-color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .btn-primary {
+  --bs-btn-bg: #f8f9fa;
+  --bs-btn-border-color: #f8f9fa;
+  --bs-btn-hover-bg: #e9ecef;
+  --bs-btn-hover-border-color: #e9ecef;
+  --bs-btn-color: #212529;
+  --bs-btn-hover-color: #212529;
+}
+
+[data-bs-theme="dark"] .btn-outline-primary {
+  --bs-btn-color: #f8f9fa;
+  --bs-btn-border-color: #f8f9fa;
+  --bs-btn-hover-bg: #f8f9fa;
+  --bs-btn-hover-border-color: #f8f9fa;
+  --bs-btn-hover-color: #212529;
+}
+
+[data-bs-theme="dark"] .text-primary {
+  color: #f8f9fa !important;
 }
 
 body {
@@ -108,9 +138,25 @@ code {
 }
 
 body {
-  background-image: url('./assets/bgimage.svg') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
+  background-color: transparent !important;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('./assets/bgimage.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  transition: filter 0.3s ease;
+}
+
+[data-bs-theme="dark"] body::before {
+  filter: grayscale(100%) brightness(0.4);
 }

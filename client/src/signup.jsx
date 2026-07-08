@@ -8,6 +8,7 @@ function Signup() {
     email: "",
     password: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -63,14 +64,24 @@ function Signup() {
 
           <div className="mb-4">
             <label className="form-label">Password</label>
-            <input
-              className="form-control"
-              name="password"
-              type="password"
-              placeholder="Create a password"
-              onChange={handleChange}
-              required
-            />
+            <div className="input-group">
+              <input
+                className="form-control"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                onChange={handleChange}
+                required
+              />
+              <button 
+                className="btn btn-outline-secondary" 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ borderColor: "#dee2e6" }}
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+              </button>
+            </div>
           </div>
 
           <button className="btn btn-primary w-100 mb-3">
