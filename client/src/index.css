@@ -142,21 +142,30 @@ body {
   position: relative;
 }
 
-body::before {
-  content: "";
+.video-background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url('./assets/bgimage.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   z-index: -1;
+  overflow: hidden;
+  background-color: black;
+}
+
+.video-background iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 56.25vw;
+  min-height: 100vh;
+  min-width: 177.77vh;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
   transition: filter 0.3s ease;
 }
 
-[data-bs-theme="dark"] body::before {
+[data-bs-theme="dark"] .video-background iframe {
   filter: grayscale(100%) brightness(0.4);
 }

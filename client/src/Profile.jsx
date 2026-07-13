@@ -6,6 +6,7 @@ function Profile() {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [showPicMenu, setShowPicMenu] = useState(false);
   
   // Password change state
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -30,9 +31,7 @@ function Profile() {
     }
   }, [navigate]);
 
-  const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
+
 
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -81,6 +80,31 @@ function Profile() {
     } catch (error) {
       console.error("Error uploading profile picture:", error);
       alert("Failed to upload profile picture. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemovePicture = async () => {
+    try {
+      setIsUploading(true);
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://localhost:5001/api/auth/profile-picture",
+        { profilePicture: "" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProfilePicture("");
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const storedUser = JSON.parse(userStr);
+        storedUser.profilePicture = "";
+        localStorage.setItem("user", JSON.stringify(storedUser));
+        setUser(storedUser);
+      }
+    } catch (error) {
+      console.error("Error removing profile picture:", error);
+      alert("Failed to remove profile picture.");
     } finally {
       setIsUploading(false);
     }
@@ -141,13 +165,11 @@ function Profile() {
         {/* Profile Picture Section */}
         <div className="mb-4 position-relative d-inline-block">
           <div 
-            onClick={handleImageClick}
             style={{ 
               width: "150px", 
               height: "150px", 
               borderRadius: "50%", 
               overflow: "hidden", 
-              cursor: "pointer",
               border: "4px solid var(--bs-primary)",
               boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
               display: "flex",
@@ -155,10 +177,8 @@ function Profile() {
               alignItems: "center",
               backgroundColor: "var(--bs-light)",
               margin: "0 auto",
-              transition: "transform 0.2s ease-in-out"
+              position: "relative"
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             {isUploading ? (
                <div className="spinner-border text-primary" role="status">
@@ -168,11 +188,57 @@ function Profile() {
               <img src={profilePicture} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div className="d-flex flex-column align-items-center">
-                <i className="bi bi-person-circle text-secondary" style={{ fontSize: "3rem" }}></i>
-                <span className="text-muted mt-1" style={{ fontSize: "14px", fontWeight: "500" }}>Upload Photo</span>
+                <i className="bi bi-person-circle text-secondary" style={{ fontSize: "4rem" }}></i>
               </div>
             )}
           </div>
+          
+          {/* Pencil Icon Button */}
+          <button
+            onClick={() => setShowPicMenu(!showPicMenu)}
+            className="btn btn-primary rounded-circle shadow"
+            style={{
+              position: "absolute",
+              bottom: "5px",
+              right: "5px",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 10,
+              padding: 0
+            }}
+          >
+            <i className="bi bi-pencil-fill"></i>
+          </button>
+
+          {/* Dropdown Menu */}
+          {showPicMenu && (
+            <div className="dropdown-menu show shadow p-2" style={{ position: "absolute", top: "85%", left: "70%", zIndex: 1050, minWidth: "160px", borderRadius: "10px" }}>
+              <button 
+                className="dropdown-item rounded d-flex align-items-center mb-1 text-primary fw-bold"
+                onClick={() => {
+                  setShowPicMenu(false);
+                  fileInputRef.current.click();
+                }}
+              >
+                <i className="bi bi-camera me-2 fs-5"></i> Change 
+              </button>
+              {profilePicture && (
+                <button 
+                  className="dropdown-item rounded d-flex align-items-center text-danger fw-bold"
+                  onClick={() => {
+                    setShowPicMenu(false);
+                    handleRemovePicture();
+                  }}
+                >
+                  <i className="bi bi-trash me-2 fs-5"></i> Remove
+                </button>
+              )}
+            </div>
+          )}
+
           <input 
             type="file" 
             accept="image/*" 
@@ -180,7 +246,6 @@ function Profile() {
             onChange={handleFileChange} 
             style={{ display: "none" }} 
           />
-          <div className="mt-2 text-muted small fw-bold">Click to update picture</div>
         </div>
 
         {/* Profile Details */}

@@ -6,19 +6,59 @@ function Signup() {
   const [user, setUser] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
+    confirmPassword: ""
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const navigate = useNavigate();
 
+  const validatePassword = (password) => {
+    if (!password) return "";
+    if (password.length < 8) return "Password must be at least 8 characters long.";
+    if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter.";
+    if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter.";
+    if (!/[0-9]/.test(password)) return "Password must contain at least one number.";
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) return "Password must contain at least one symbol.";
+    return "";
+  };
+
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+    
+    if (name === "password") {
+      setPasswordError(validatePassword(value));
+      if (user.confirmPassword && value !== user.confirmPassword) {
+        setConfirmPasswordError("Passwords do not match.");
+      } else {
+        setConfirmPasswordError("");
+      }
+    }
+    if (name === "confirmPassword") {
+      if (value !== user.password) {
+        setConfirmPasswordError("Passwords do not match.");
+      } else {
+        setConfirmPasswordError("");
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (passwordError || validatePassword(user.password)) {
+      alert("Please fix the password errors before submitting.");
+      return;
+    }
+    if (user.password !== user.confirmPassword) {
+      setConfirmPasswordError("Passwords do not match.");
+      alert("Passwords do not match.");
+      return;
+    }
     try {
-      const response = await axios.post("http://localhost:5001/api/auth/register", user);
+      const { confirmPassword, ...userData } = user;
+      const response = await axios.post("http://localhost:5001/api/auth/register", userData);
       console.log("Success:", response.data);
       alert("Registration Successful!");
       navigate('/login');
@@ -82,6 +122,38 @@ function Signup() {
                 <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
               </button>
             </div>
+            {passwordError && (
+              <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                {passwordError}
+              </div>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label">Confirm Password</label>
+            <div className="input-group">
+              <input
+                className="form-control"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                onChange={handleChange}
+                required
+              />
+              <button 
+                className="btn btn-outline-secondary" 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ borderColor: "#dee2e6" }}
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+              </button>
+            </div>
+            {confirmPasswordError && (
+              <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                {confirmPasswordError}
+              </div>
+            )}
           </div>
 
           <button className="btn btn-primary w-100 mb-3">

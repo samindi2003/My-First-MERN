@@ -75,8 +75,8 @@ router.put("/profile-picture", authMiddleware, async (req, res) => {
   try {
     const { profilePicture } = req.body;
     
-    if (!profilePicture) {
-      return res.status(400).json({ message: "No picture provide" });
+    if (profilePicture === undefined) {
+      return res.status(400).json({ message: "No picture provided" });
     }
 
     const updatedUser = await User.findByIdAndUpdate(

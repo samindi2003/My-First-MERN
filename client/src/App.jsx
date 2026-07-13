@@ -20,6 +20,15 @@ function App() {
 
   return (
     <>
+      <div className="video-background">
+        <iframe
+          src="https://www.youtube.com/embed/e1AHGiHaeJc?autoplay=1&mute=1&controls=0&loop=1&playlist=e1AHGiHaeJc"
+          frameBorder="0"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+          title="Background Video"
+        ></iframe>
+      </div>
       <button 
         onClick={toggleTheme}
         className={`btn btn-${theme === 'light' ? 'dark' : 'light'} position-fixed rounded-circle shadow`}
