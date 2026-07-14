@@ -81,7 +81,7 @@ function Signup() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Full Name</label>
+            <label className="form-label">Full Name 👤   </label>
             <input
               className="form-control"
               name="name"
@@ -93,7 +93,7 @@ function Signup() {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Email Address</label>
+            <label className="form-label">Email Address ✉️ </label>
             <input
               className="form-control"
               name="email"
@@ -104,7 +104,7 @@ function Signup() {
             />
           </div>
           <div className="mb-3">
-  <label className="form-label">Phone Number</label>
+  <label className="form-label">Phone Number 📞   </label>
   <input
     className="form-control"
     name="phone"
@@ -116,7 +116,7 @@ function Signup() {
   />
 </div>
 <div className="mb-3">
-  <label className="form-label">Gender</label>
+  <label className="form-label">Gender  👥 </label>
 
   <select
     className="form-select"
@@ -133,7 +133,7 @@ function Signup() {
 </div>
 
           <div className="mb-4">
-            <label className="form-label">Password</label>
+            <label className="form-label">Password  🔒 </label>
             <div className="input-group">
               <input
                 className="form-control"
@@ -160,7 +160,7 @@ function Signup() {
           </div>
 
           <div className="mb-4">
-            <label className="form-label">Confirm Password</label>
+            <label className="form-label">Confirm Password 🔐  </label>
             <div className="input-group">
               <input
                 className="form-control"

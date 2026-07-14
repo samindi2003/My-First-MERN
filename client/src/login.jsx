@@ -40,7 +40,7 @@ function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Email Adress</label>
+            <label className="form-label">Email Adress ✉️ </label>
             <input
               className="form-control"
               name="email"
@@ -52,7 +52,7 @@ function Login() {
           </div>
 
           <div className="mb-4">
-            <label className="form-label">Password</label>
+            <label className="form-label">Password 🔒  </label>
             <div className="input-group">
               <input
                 className="form-control"

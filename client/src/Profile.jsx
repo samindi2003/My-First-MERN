@@ -204,7 +204,7 @@ function Profile() {
           <i className="bi bi-arrow-left me-2"></i> Dashboard
         </button>
 
-        <h2 className="fw-bold mb-4 mt-5 text-primary">Your Profile</h2>
+        <h2 className="fw-bold mb-4 mt-5 text-primary">Your Profile 🪪  </h2>
 
         {/* Profile Picture Section */}
         <div className="mb-4 position-relative d-inline-block">
