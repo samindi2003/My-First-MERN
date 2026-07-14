@@ -75,7 +75,7 @@ function Signup() {
       <div className="card p-4 shadow-sm border" style={{ width: "400px" }}>
 
         <div className="text-center mb-4">
-          <h3 className="fw-bold text-primary">Create Account</h3>
+          <h3 className="fw-bold text-primary">Create Account 💙   </h3>
           <p className="text-muted">Sign up to get started</p>
         </div>
 
