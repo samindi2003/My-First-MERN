@@ -145,6 +145,50 @@ function Profile() {
       setIsChangingPassword(false);
     }
   };
+  const handleDeleteAccount = async () => {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete your account?"
+  );
+
+
+  if (!confirmDelete) {
+    return;
+  }
+
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+
+    await axios.delete(
+      "http://localhost:5001/api/auth/delete-account",
+      {
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    );
+
+
+    alert("Account deleted successfully");
+
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+
+    navigate("/register");
+
+
+  } catch(error){
+
+    alert("Delete failed");
+
+  }
+
+};
 
   if (!user) return null;
 
@@ -248,19 +292,56 @@ function Profile() {
           />
         </div>
 
-        {/* Profile Details */}
-        <div className="card shadow-sm border mb-4 text-start">
-          <div className="card-body">
-            <div className="mb-3">
-              <label className="form-label text-muted small fw-bold">Full Name</label>
-              <p className="lead fw-medium mb-0">{user.name}</p>
-            </div>
-            <div>
-              <label className="form-label text-muted small fw-bold">Email Adress</label>
-              <p className="lead fw-medium mb-0">{user.email}</p>
-            </div>
-          </div>
-        </div>
+       {/* Profile Details */}
+<div className="card shadow-sm border mb-4 text-start">
+  <div className="card-body">
+
+    <div className="mb-3">
+      <label className="form-label text-muted small fw-bold">
+        Full Name
+      </label>
+      <p className="lead fw-medium mb-0">
+        <i className="bi bi-person me-2 text-primary"></i>
+        {user.name}
+      </p>
+    </div>
+
+
+    <div className="mb-3">
+      <label className="form-label text-muted small fw-bold">
+        Email Address
+      </label>
+      <p className="lead fw-medium mb-0">
+        <i className="bi bi-envelope me-2 text-primary"></i>
+        {user.email}
+      </p>
+    </div>
+
+
+    <div className="mb-3">
+      <label className="form-label text-muted small fw-bold">
+        Phone Number
+      </label>
+      <p className="lead fw-medium mb-0">
+        <i className="bi bi-telephone me-2 text-primary"></i>
+        {user.phone}
+      </p>
+    </div>
+
+
+    <div>
+      <label className="form-label text-muted small fw-bold">
+        Gender
+      </label>
+      <p className="lead fw-medium mb-0">
+        <i className="bi bi-person-badge me-2 text-primary"></i>
+        {user.gender}
+      </p>
+    </div>
+
+
+  </div>
+</div>
 
         {/* Change Password Section */}
         <div className="card shadow-sm border mb-4 text-start">
@@ -312,6 +393,15 @@ function Profile() {
                 <button type="submit" className="btn btn-primary w-100" disabled={isChangingPassword}>
                   {isChangingPassword ? "Updating..." : "Change Password"}
                 </button>
+               {/* Delete Account Button */}
+<button
+  type="button"
+  className="btn btn-danger w-100 mt-3"
+  onClick={handleDeleteAccount}
+>
+  <i className="bi bi-trash me-2"></i>
+  Delete Account
+</button> 
               </form>
             </div>
           )}
@@ -322,4 +412,4 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default Profile; 

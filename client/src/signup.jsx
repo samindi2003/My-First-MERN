@@ -4,10 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
   const [user, setUser] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
+     name: "",
+     email: "",
+     phone: "",
+     gender: "",
+     password: "",
+     confirmPassword: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
@@ -101,6 +103,34 @@ function Signup() {
               required
             />
           </div>
+          <div className="mb-3">
+  <label className="form-label">Phone Number</label>
+  <input
+    className="form-control"
+    name="phone"
+    type="tel"
+    value={user.phone}
+    placeholder="Enter your phone number"
+    onChange={handleChange}
+    required
+  />
+</div>
+<div className="mb-3">
+  <label className="form-label">Gender</label>
+
+  <select
+    className="form-select"
+    name="gender"
+    value={user.gender}
+    onChange={handleChange}
+    required
+  >
+    <option value="">Select Gender</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
 
           <div className="mb-4">
             <label className="form-label">Password</label>

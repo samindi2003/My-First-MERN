@@ -7,7 +7,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email,phone,gender, password } = req.body;
 
     // check if user exists
     const existingUser = await User.findOne({ email });
@@ -24,6 +24,8 @@ router.post("/register", async (req, res) => {
     const newUser = new User({
       name,
       email,
+      phone,
+      gender,
       password: hashedPassword
     });
 
@@ -62,6 +64,8 @@ router.post("/login", async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        gender: user.gender,
         profilePicture: user.profilePicture
       }
     });
@@ -126,6 +130,23 @@ router.put("/change-password", authMiddleware, async (req, res) => {
     res.json({ message: "Password updated successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+router.delete("/delete-account", authMiddleware, async (req, res) => {
+  try {
+
+    await User.findByIdAndDelete(req.user.id);
+
+    res.json({
+      message: "Account deleted successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message
+    });
+
   }
 });
 
