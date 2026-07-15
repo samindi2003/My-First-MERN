@@ -149,5 +149,45 @@ router.delete("/delete-account", authMiddleware, async (req, res) => {
 
   }
 });
+// UPDATE USER PROFILE
+router.put("/profile", authMiddleware, async (req, res) => {
+  try {
+    const { name, phone, gender } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        name,
+        phone,
+        gender,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.error(
+      "Update profile error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Failed to update profile",
+    });
+  }
+});
 
 module.exports = router;
