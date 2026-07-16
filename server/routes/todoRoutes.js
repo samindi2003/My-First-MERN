@@ -8,7 +8,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 // CREATE TODO
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, dueDate } = req.body;
 
     if (!title || title.trim() === "") {
       return res.status(400).json({
@@ -17,9 +17,10 @@ router.post("/", authMiddleware, async (req, res) => {
     }
 
     const newTodo = new Todo({
-      user: req.user.id,
-      title: title.trim(),
-    });
+  user: req.user.id,
+  title: title.trim(),
+  dueDate: dueDate || null,
+});
 
     await newTodo.save();
 
@@ -62,7 +63,7 @@ router.get("/", authMiddleware, async (req, res) => {
 // UPDATE TODO
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
-    const { title, completed } = req.body;
+    const { title, completed, dueDate } = req.body;
 
     const todo = await Todo.findOne({
       _id: req.params.id,
@@ -88,6 +89,9 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (completed !== undefined) {
       todo.completed = completed;
     }
+    if (dueDate !== undefined) {
+  todo.dueDate = dueDate || null;
+}
 
     await todo.save();
 

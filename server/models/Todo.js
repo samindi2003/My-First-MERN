@@ -11,11 +11,18 @@ const todoSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
 
     completed: {
       type: Boolean,
       default: false,
+    },
+
+    // Task deadline
+    dueDate: {
+      type: Date,
+      default: null,
     },
   },
   {

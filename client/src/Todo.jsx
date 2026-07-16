@@ -5,6 +5,7 @@ import axios from "axios";
 function Todo() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -71,16 +72,18 @@ function Todo() {
       setError("");
       setMessage("");
 
-      const response = await axios.post(
-        "http://localhost:5001/api/todos",
-        {
-          title,
-        },
-        authHeader
-      );
+     const response = await axios.post(
+  "http://localhost:5001/api/todos",
+  {
+    title,
+    dueDate: dueDate || null,
+  },
+  authHeader
+);
 
       setTodos([response.data.todo, ...todos]);
       setTitle("");
+      setDueDate("");
       setMessage("Task added successfully");
 
       setTimeout(() => {
@@ -243,26 +246,47 @@ function Todo() {
             </div>
           )}
 
-          <form
-            onSubmit={handleAddTodo}
-            className="d-flex gap-2 mb-4"
-          >
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Enter a new task"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+          <form onSubmit={handleAddTodo} className="mb-4">
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
-              <i className="bi bi-plus-circle me-2"></i>
-              Add
-            </button>
-          </form>
+  {/* Task Title */}
+  <div className="mb-3">
+    <label className="form-label fw-bold">
+      Task
+    </label>
+
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Enter your task"
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+    />
+  </div>
+
+  {/* Deadline */}
+  <div className="mb-3">
+    <label className="form-label fw-bold">
+      Deadline
+    </label>
+
+   <input
+  type="date"
+  className="form-control"
+  value={dueDate}
+  onChange={(e) => setDueDate(e.target.value)}
+/>
+  </div>
+
+  {/* Add Button */}
+  <button
+    type="submit"
+    className="btn btn-primary w-100"
+  >
+    <i className="bi bi-plus-circle me-2"></i>
+    Add Task
+  </button>
+
+</form>
 
           {isLoading ? (
             <div className="text-center py-4">
@@ -317,15 +341,33 @@ function Todo() {
 
                     ) : (
 
-                      <span
-                        className={
-                          todo.completed
-                            ? "text-decoration-line-through text-muted"
-                            : ""
-                        }
-                      >
-                        {todo.title}
-                      </span>
+                     <div>
+  <div
+    className={
+      todo.completed
+        ? "text-decoration-line-through text-muted"
+        : ""
+    }
+  >
+    {todo.title}
+  </div>
+
+  {todo.dueDate && (
+    <small
+      className={
+        !todo.completed &&
+        new Date(todo.dueDate) < new Date()
+          ? "text-danger"
+          : "text-muted"
+      }
+    >
+      <i className="bi bi-calendar-event me-1"></i>
+
+      Deadline:{" "}
+      {new Date(todo.dueDate).toLocaleString()}
+    </small>
+  )}
+</div>
 
                     )}
 
