@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 function Todo() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -76,14 +79,16 @@ function Todo() {
   "http://localhost:5001/api/todos",
   {
     title,
-    dueDate: dueDate || null,
+    dueDate: dueDate
+  ? dueDate.toISOString()
+  : null,
   },
   authHeader
 );
 
       setTodos([response.data.todo, ...todos]);
       setTitle("");
-      setDueDate("");
+      setDueDate(null);
       setMessage("Task added successfully");
 
       setTimeout(() => {
@@ -269,11 +274,13 @@ function Todo() {
       Deadline
     </label>
 
-   <input
-  type="date"
+   <DatePicker
+  selected={dueDate}
+  onChange={(date) => setDueDate(date)}
+  dateFormat="dd/MM/yyyy"
+  placeholderText="Select deadline"
   className="form-control"
-  value={dueDate}
-  onChange={(e) => setDueDate(e.target.value)}
+  minDate={new Date()}
 />
   </div>
 
