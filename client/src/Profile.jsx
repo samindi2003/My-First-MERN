@@ -177,7 +177,18 @@ function Profile() {
       setIsUploading(false);
     }
   };
+  
+   // FORMAT ACCOUNT CREATED DATE
+const formatCreatedDate = (date) => {
+  if (!date) {
+    return "Date not available";
+  }
 
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+};
 
   // EDIT PROFILE BUTTON
   const handleEdit = () => {
@@ -593,21 +604,39 @@ function Profile() {
 
 
                 {/* GENDER */}
-                <div>
+<div className="mb-3">
 
-                  <label className="form-label text-muted small fw-bold">
-                    Gender
-                  </label>
+  <label className="form-label text-muted small fw-bold">
+    Gender
+  </label>
 
-                  <p className="lead fw-medium mb-0">
+  <p className="lead fw-medium mb-0">
 
-                    <i className="bi bi-person-badge me-2 text-primary"></i>
+    <i className="bi bi-person-badge me-2 text-primary"></i>
 
-                    {user.gender || "Not added"}
+    {user.gender || "Not added"}
 
-                  </p>
+  </p>
 
-                </div>
+</div>
+
+
+{/* MEMBER SINCE */}
+<div>
+
+  <label className="form-label text-muted small fw-bold">
+    Member Since
+  </label>
+
+  <p className="lead fw-medium mb-0">
+
+    <i className="bi bi-calendar-check me-2 text-primary"></i>
+
+    {formatCreatedDate(user.createdAt)}
+
+  </p>
+
+</div>
 
               </>
 
@@ -729,6 +758,37 @@ function Profile() {
                   </select>
 
                 </div>
+                {/* MEMBER SINCE */}
+<div className="mb-4">
+
+  <label className="form-label fw-bold">
+    Member Since
+  </label>
+
+  <div className="input-group">
+
+    <span className="input-group-text">
+      <i className="bi bi-calendar-check text-primary"></i>
+    </span>
+
+    <input
+      type="text"
+      className="form-control"
+      value={formatCreatedDate(user.createdAt)}
+      disabled
+    />
+
+    <span className="input-group-text">
+      <i className="bi bi-lock-fill text-secondary"></i>
+    </span>
+
+  </div>
+
+  <small className="text-muted">
+    Account creation date cannot be changed
+  </small>
+
+</div>
 
 
                 {/* BUTTONS */}
