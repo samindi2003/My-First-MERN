@@ -71,6 +71,13 @@ function Dashboard() {
             View Profile Details
           </button>
           <button
+  className="btn btn-success w-100 mt-3"
+  onClick={() => navigate("/todo")}
+>
+  <i className="bi bi-check2-square me-2"></i>
+  Open To-Do List
+</button>
+          <button
             onClick={handleLogout}
             className="btn btn-outline-danger px-5 py-2 fw-bold shadow-sm rounded-pill"
           >

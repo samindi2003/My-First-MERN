@@ -5,6 +5,7 @@ import Login from "./login";
 import Landing from "./Landing";
 import Dashboard from "./Dashboard";
 import Profile from "./Profile";
+import Todo from "./Todo";
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -45,6 +46,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/todo" element={<Todo />} />
         </Routes>
       </BrowserRouter>
     </>

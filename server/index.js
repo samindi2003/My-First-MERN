@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const todoRoutes = require("./routes/todoRoutes");
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json({ limit: '10mb' }));
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/todos", todoRoutes);
 
 // Test route
 app.get("/", (req, res) => {
