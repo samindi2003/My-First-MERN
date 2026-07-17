@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,18 +9,16 @@ function Profile() {
   const [isUploading, setIsUploading] = useState(false);
   const [showPicMenu, setShowPicMenu] = useState(false);
 
-  // Edit Profile State
   const [isEditing, setIsEditing] = useState(false);
 
   const [editData, setEditData] = useState({
     name: "",
-     phone: "",
+    phone: "",
     gender: "",
   });
-   
 
-  // Password change state
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] =
+    useState(false);
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -30,14 +28,13 @@ function Profile() {
 
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] =
+    useState(false);
 
   const fileInputRef = useRef(null);
-
   const navigate = useNavigate();
 
-
-  // GET USER FROM LOCAL STORAGE
+  // Get user from localStorage
   useEffect(() => {
     const userStr = localStorage.getItem("user");
 
@@ -45,17 +42,15 @@ function Profile() {
       const parsedUser = JSON.parse(userStr);
 
       setUser(parsedUser);
-
-      if (parsedUser.profilePicture) {
-        setProfilePicture(parsedUser.profilePicture);
-      }
+      setProfilePicture(
+        parsedUser.profilePicture || ""
+      );
     } else {
       navigate("/login");
     }
   }, [navigate]);
 
-
-  // CONVERT IMAGE TO BASE64
+  // Convert image to Base64
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -72,8 +67,7 @@ function Profile() {
     });
   };
 
-
-  // CHANGE PROFILE PICTURE
+  // Change profile picture
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
 
@@ -83,7 +77,6 @@ function Profile() {
       setIsUploading(true);
 
       const base64 = await convertToBase64(file);
-
       const token = localStorage.getItem("token");
 
       const response = await axios.put(
@@ -98,7 +91,8 @@ function Profile() {
         }
       );
 
-      const updatedPicture = response.data.profilePicture;
+      const updatedPicture =
+        response.data.profilePicture;
 
       setProfilePicture(updatedPicture);
 
@@ -116,6 +110,8 @@ function Profile() {
 
         setUser(storedUser);
       }
+
+      setShowPicMenu(false);
     } catch (error) {
       console.error(
         "Error uploading profile picture:",
@@ -127,11 +123,14 @@ function Profile() {
       );
     } finally {
       setIsUploading(false);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
-
-  // REMOVE PROFILE PICTURE
+  // Remove profile picture
   const handleRemovePicture = async () => {
     try {
       setIsUploading(true);
@@ -166,6 +165,8 @@ function Profile() {
 
         setUser(storedUser);
       }
+
+      setShowPicMenu(false);
     } catch (error) {
       console.error(
         "Error removing profile picture:",
@@ -177,33 +178,34 @@ function Profile() {
       setIsUploading(false);
     }
   };
-  
-   // FORMAT ACCOUNT CREATED DATE
-const formatCreatedDate = (date) => {
-  if (!date) {
-    return "Date not available";
-  }
 
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-};
+  // Format account-created date
+  const formatCreatedDate = (date) => {
+    if (!date) {
+      return "Date not available";
+    }
 
-  // EDIT PROFILE BUTTON
+    return new Date(date).toLocaleDateString(
+      "en-US",
+      {
+        month: "long",
+        year: "numeric",
+      }
+    );
+  };
+
+  // Open edit profile form
   const handleEdit = () => {
     setEditData({
       name: user.name || "",
-       phone: user.phone || "",
+      phone: user.phone || "",
       gender: user.gender || "",
     });
-     
 
     setIsEditing(true);
   };
 
-
-  // EDIT INPUT CHANGE
+  // Edit input change
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
@@ -213,60 +215,56 @@ const formatCreatedDate = (date) => {
     });
   };
 
-
-  // SAVE PROFILE CHANGES
+  // Save profile changes
   const handleUpdateProfile = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const response = await axios.put(
-      "http://localhost:5001/api/auth/profile",
-      {
-        name: editData.name,
-        phone: editData.phone,
-        gender: editData.gender,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.put(
+        "http://localhost:5001/api/auth/profile",
+        {
+          name: editData.name,
+          phone: editData.phone,
+          gender: editData.gender,
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const updatedUser = response.data.user;
+      const updatedUser = response.data.user;
 
-    setUser(updatedUser);
+      setUser(updatedUser);
+      setProfilePicture(
+        updatedUser.profilePicture || ""
+      );
 
-    setProfilePicture(
-      updatedUser.profilePicture || ""
-    );
+      localStorage.setItem(
+        "user",
+        JSON.stringify(updatedUser)
+      );
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify(updatedUser)
-    );
+      setIsEditing(false);
 
-    setIsEditing(false);
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error(
+        "Profile update error:",
+        error
+      );
 
-    alert("✅ Profile updated successfully!");
+      alert(
+        error.response?.data?.message ||
+          "Profile update failed."
+      );
+    }
+  };
 
-  } catch (error) {
-    console.error(
-      "Profile update error:",
-      error
-    );
-
-    alert(
-      error.response?.data?.message ||
-      "❌ Profile update failed"
-    );
-  }
-};
-
-
-  // CHANGE PASSWORD
+  // Change password
   const handlePasswordChange = async (e) => {
     e.preventDefault();
 
@@ -277,9 +275,11 @@ const formatCreatedDate = (date) => {
       passwordData.newPassword !==
       passwordData.confirmPassword
     ) {
-      return setPasswordError(
+      setPasswordError(
         "New passwords do not match."
       );
+
+      return;
     }
 
     try {
@@ -292,7 +292,6 @@ const formatCreatedDate = (date) => {
         {
           currentPassword:
             passwordData.currentPassword,
-
           newPassword:
             passwordData.newPassword,
         },
@@ -311,10 +310,10 @@ const formatCreatedDate = (date) => {
         confirmPassword: "",
       });
 
-      setTimeout(
-        () => setShowPasswordForm(false),
-        2000
-      );
+      setTimeout(() => {
+        setShowPasswordForm(false);
+        setPasswordSuccess("");
+      }, 2000);
     } catch (error) {
       setPasswordError(
         error.response?.data?.message ||
@@ -325,16 +324,13 @@ const formatCreatedDate = (date) => {
     }
   };
 
-
-  // DELETE ACCOUNT
+  // Delete account
   const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete your account?"
     );
 
-    if (!confirmDelete) {
-      return;
-    }
+    if (!confirmDelete) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -348,7 +344,7 @@ const formatCreatedDate = (date) => {
         }
       );
 
-      alert("Account deleted successfully");
+      alert("Account deleted successfully.");
 
       localStorage.removeItem("user");
       localStorage.removeItem("token");
@@ -357,533 +353,481 @@ const formatCreatedDate = (date) => {
     } catch (error) {
       console.error(error);
 
-      alert("Delete failed");
+      alert(
+        error.response?.data?.message ||
+          "Account deletion failed."
+      );
     }
   };
 
-
-  if (!user) return null;
-
+  if (!user) {
+    return (
+      <div className="glass-page">
+        <div
+          className="spinner-border text-primary"
+          role="status"
+        >
+          <span className="visually-hidden">
+            Loading...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="d-flex flex-column justify-content-center align-items-center vh-100 bg-transparent text-center overflow-auto py-5">
-      <div
-        className="p-4 w-100 position-relative"
-        style={{ maxWidth: "600px" }}
-      >
+    <div className="glass-page profile-glass-page">
+      <div className="white-glass-card large profile-glass-card">
 
-        {/* DASHBOARD BUTTON */}
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="btn btn-outline-secondary position-absolute"
-          style={{
-            top: "0",
-            left: "20px",
-          }}
-        >
-          <i className="bi bi-arrow-left me-2"></i>
-          Dashboard
-        </button>
-
-
-        <h2 className="fw-bold mb-4 mt-5 text-primary">
-          Your Profile 🪪
-        </h2>
-
-
-        {/* PROFILE PICTURE */}
-        <div className="mb-4 position-relative d-inline-block">
-
-          <div
-            style={{
-              width: "150px",
-              height: "150px",
-              borderRadius: "50%",
-              overflow: "hidden",
-              border: "4px solid var(--bs-primary)",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "var(--bs-light)",
-              margin: "0 auto",
-              position: "relative",
-            }}
-          >
-
-            {isUploading ? (
-
-              <div
-                className="spinner-border text-primary"
-                role="status"
-              >
-                <span className="visually-hidden">
-                  Loading...
-                </span>
-              </div>
-
-            ) : profilePicture ? (
-
-              <img
-                src={profilePicture}
-                alt="Profile"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-
-            ) : (
-
-              <i
-                className="bi bi-person-circle text-secondary"
-                style={{ fontSize: "4rem" }}
-              ></i>
-
-            )}
-
-          </div>
-
-
-          {/* PENCIL BUTTON */}
+        {/* Top navigation */}
+        <div className="d-flex justify-content-start mb-4">
           <button
-            onClick={() =>
-              setShowPicMenu(!showPicMenu)
-            }
-            className="btn btn-primary rounded-circle shadow"
-            style={{
-              position: "absolute",
-              bottom: "5px",
-              right: "5px",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 10,
-              padding: 0,
-            }}
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            className="btn btn-outline-primary profile-back-button"
           >
-            <i className="bi bi-pencil-fill"></i>
+            <i className="bi bi-arrow-left me-2"></i>
+            Dashboard
           </button>
-
-
-          {/* PICTURE MENU */}
-          {showPicMenu && (
-
-            <div
-              className="dropdown-menu show shadow p-2"
-              style={{
-                position: "absolute",
-                top: "85%",
-                left: "70%",
-                zIndex: 1050,
-                minWidth: "160px",
-                borderRadius: "10px",
-              }}
-            >
-
-              <button
-                className="dropdown-item rounded d-flex align-items-center mb-1 text-primary fw-bold"
-                onClick={() => {
-                  setShowPicMenu(false);
-                  fileInputRef.current.click();
-                }}
-              >
-                <i className="bi bi-camera me-2 fs-5"></i>
-                Change
-              </button>
-
-
-              {profilePicture && (
-
-                <button
-                  className="dropdown-item rounded d-flex align-items-center text-danger fw-bold"
-                  onClick={() => {
-                    setShowPicMenu(false);
-                    handleRemovePicture();
-                  }}
-                >
-                  <i className="bi bi-trash me-2 fs-5"></i>
-                  Remove
-                </button>
-
-              )}
-
-            </div>
-
-          )}
-
-
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-
         </div>
 
+        {/* Heading */}
+        <div className="text-center mb-4">
+          <div className="glass-icon mb-3">
+            <i className="bi bi-person-vcard"></i>
+          </div>
 
-        {/* PROFILE DETAILS */}
-        <div className="card shadow-sm border mb-4 text-start">
+          <h2 className="fw-bold text-primary mb-2">
+            Your Profile
+          </h2>
 
-          <div className="card-body">
+          <p className="glass-subtitle">
+            Manage your personal information and
+            account security
+          </p>
+        </div>
 
-            {!isEditing ? (
+        {/* Profile picture */}
+        <div className="profile-picture-section mb-4">
+          <div className="profile-picture-wrapper">
 
-              <>
-                {/* EDIT BUTTON */}
-                <div className="d-flex justify-content-end mb-3">
+            <div className="profile-picture-circle">
+              {isUploading ? (
+                <div
+                  className="spinner-border text-primary"
+                  role="status"
+                >
+                  <span className="visually-hidden">
+                    Loading...
+                  </span>
+                </div>
+              ) : profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  className="profile-picture-image"
+                />
+              ) : (
+                <i className="bi bi-person-circle profile-placeholder-icon"></i>
+              )}
+            </div>
 
+            <button
+              type="button"
+              className="btn btn-primary profile-picture-edit-button"
+              onClick={() =>
+                setShowPicMenu(!showPicMenu)
+              }
+              disabled={isUploading}
+              aria-label="Edit profile picture"
+            >
+              <i className="bi bi-pencil-fill"></i>
+            </button>
+
+            {showPicMenu && (
+              <div className="profile-picture-menu">
+                <button
+                  type="button"
+                  className="profile-picture-menu-item"
+                  onClick={() => {
+                    setShowPicMenu(false);
+
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  <i className="bi bi-camera me-2"></i>
+                  Change picture
+                </button>
+
+                {profilePicture && (
                   <button
-                    className="btn btn-primary"
-                    onClick={handleEdit}
+                    type="button"
+                    className="profile-picture-menu-item text-danger"
+                    onClick={handleRemovePicture}
                   >
-                    <i className="bi bi-pencil-square me-2"></i>
-                    Edit Profile
+                    <i className="bi bi-trash me-2"></i>
+                    Remove picture
                   </button>
+                )}
+              </div>
+            )}
 
-                </div>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="d-none"
+            />
+          </div>
+        </div>
 
+        {/* Profile information */}
+        <div className="glass-inner-card mb-4 text-start">
 
-                {/* NAME */}
-                <div className="mb-3">
+          {!isEditing ? (
+            <>
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                <div>
+                  <h5 className="fw-bold mb-1">
+                    <i className="bi bi-person-lines-fill text-primary me-2"></i>
+                    Profile Information
+                  </h5>
 
-                  <label className="form-label text-muted small fw-bold">
-                    Full Name
-                  </label>
-
-                  <p className="lead fw-medium mb-0">
-
-                    <i className="bi bi-person me-2 text-primary"></i>
-
-                    {user.name}
-
+                  <p className="glass-section-description">
+                    Your personal account details
                   </p>
-
                 </div>
 
-
-                {/* EMAIL */}
-                <div className="mb-3">
-
-                  <label className="form-label text-muted small fw-bold">
-                    Email Address
-                  </label>
-
-                  <p className="lead fw-medium mb-0">
-
-                    <i className="bi bi-envelope me-2 text-primary"></i>
-
-                    {user.email}
-
-                  </p>
-
-                </div>
-
-
-                {/* PHONE */}
-                <div className="mb-3">
-
-                  <label className="form-label text-muted small fw-bold">
-                    Phone Number
-                  </label>
-
-                  <p className="lead fw-medium mb-0">
-
-                    <i className="bi bi-telephone me-2 text-primary"></i>
-
-                    {user.phone || "Not added"}
-
-                  </p>
-
-                </div>
-
-
-                {/* GENDER */}
-<div className="mb-3">
-
-  <label className="form-label text-muted small fw-bold">
-    Gender
-  </label>
-
-  <p className="lead fw-medium mb-0">
-
-    <i className="bi bi-person-badge me-2 text-primary"></i>
-
-    {user.gender || "Not added"}
-
-  </p>
-
-</div>
-
-
-{/* MEMBER SINCE */}
-<div>
-
-  <label className="form-label text-muted small fw-bold">
-    Member Since
-  </label>
-
-  <p className="lead fw-medium mb-0">
-
-    <i className="bi bi-calendar-check me-2 text-primary"></i>
-
-    {formatCreatedDate(user.createdAt)}
-
-  </p>
-
-</div>
-
-              </>
-
-            ) : (
-
-              /* EDIT PROFILE FORM */
-              <form onSubmit={handleUpdateProfile}>
-
-                <h5 className="fw-bold text-primary mb-4">
-
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleEdit}
+                >
                   <i className="bi bi-pencil-square me-2"></i>
-
                   Edit Profile
+                </button>
+              </div>
 
+              <div className="profile-information-grid">
+
+                <div className="profile-information-item">
+                  <div className="profile-information-icon">
+                    <i className="bi bi-person"></i>
+                  </div>
+
+                  <div>
+                    <span className="profile-information-label">
+                      Full Name
+                    </span>
+
+                    <p className="profile-information-value">
+                      {user.name}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="profile-information-item">
+                  <div className="profile-information-icon">
+                    <i className="bi bi-envelope"></i>
+                  </div>
+
+                  <div>
+                    <span className="profile-information-label">
+                      Email Address
+                    </span>
+
+                    <p className="profile-information-value">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="profile-information-item">
+                  <div className="profile-information-icon">
+                    <i className="bi bi-telephone"></i>
+                  </div>
+
+                  <div>
+                    <span className="profile-information-label">
+                      Phone Number
+                    </span>
+
+                    <p className="profile-information-value">
+                      {user.phone || "Not added"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="profile-information-item">
+                  <div className="profile-information-icon">
+                    <i className="bi bi-person-badge"></i>
+                  </div>
+
+                  <div>
+                    <span className="profile-information-label">
+                      Gender
+                    </span>
+
+                    <p className="profile-information-value">
+                      {user.gender || "Not added"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="profile-information-item">
+                  <div className="profile-information-icon">
+                    <i className="bi bi-calendar-check"></i>
+                  </div>
+
+                  <div>
+                    <span className="profile-information-label">
+                      Member Since
+                    </span>
+
+                    <p className="profile-information-value">
+                      {formatCreatedDate(
+                        user.createdAt
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </>
+          ) : (
+            <form onSubmit={handleUpdateProfile}>
+              <div className="mb-4">
+                <h5 className="fw-bold text-primary mb-1">
+                  <i className="bi bi-pencil-square me-2"></i>
+                  Edit Profile
                 </h5>
 
+                <p className="glass-section-description">
+                  Update your personal information
+                </p>
+              </div>
 
-                {/* EDIT NAME */}
-                <div className="mb-3">
+              <div className="mb-3">
+                <label
+                  htmlFor="edit-name"
+                  className="form-label fw-semibold"
+                >
+                  <i className="bi bi-person me-2"></i>
+                  Full Name
+                </label>
 
-                  <label className="form-label fw-bold">
-                    Full Name
-                  </label>
+                <input
+                  id="edit-name"
+                  type="text"
+                  className="form-control"
+                  name="name"
+                  value={editData.name}
+                  onChange={handleEditChange}
+                  required
+                />
+              </div>
 
+              <div className="mb-3">
+                <label className="form-label fw-semibold">
+                  <i className="bi bi-envelope me-2"></i>
+                  Email Address
+                </label>
+
+                <div className="input-group glass-input-group">
+                  <input
+                    type="email"
+                    className="form-control"
+                    value={user.email}
+                    disabled
+                  />
+
+                  <span className="input-group-text profile-locked-icon">
+                    <i className="bi bi-lock-fill"></i>
+                  </span>
+                </div>
+
+                <small className="profile-helper-text">
+                  Email address cannot be changed.
+                </small>
+              </div>
+
+              <div className="mb-3">
+                <label
+                  htmlFor="edit-phone"
+                  className="form-label fw-semibold"
+                >
+                  <i className="bi bi-telephone me-2"></i>
+                  Phone Number
+                </label>
+
+                <input
+                  id="edit-phone"
+                  type="tel"
+                  className="form-control"
+                  name="phone"
+                  value={editData.phone}
+                  onChange={handleEditChange}
+                  placeholder="Add phone number"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label
+                  htmlFor="edit-gender"
+                  className="form-label fw-semibold"
+                >
+                  <i className="bi bi-people me-2"></i>
+                  Gender
+                </label>
+
+                <select
+                  id="edit-gender"
+                  className="form-select"
+                  name="gender"
+                  value={editData.gender}
+                  onChange={handleEditChange}
+                >
+                  <option value="">
+                    Select gender
+                  </option>
+
+                  <option value="Male">
+                    Male
+                  </option>
+
+                  <option value="Female">
+                    Female
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+                </select>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label fw-semibold">
+                  <i className="bi bi-calendar-check me-2"></i>
+                  Member Since
+                </label>
+
+                <div className="input-group glass-input-group">
                   <input
                     type="text"
                     className="form-control"
-                    name="name"
-                    value={editData.name}
-                    onChange={handleEditChange}
-                    required
+                    value={formatCreatedDate(
+                      user.createdAt
+                    )}
+                    disabled
                   />
 
+                  <span className="input-group-text profile-locked-icon">
+                    <i className="bi bi-lock-fill"></i>
+                  </span>
                 </div>
 
+                <small className="profile-helper-text">
+                  Account creation date cannot be
+                  changed.
+                </small>
+              </div>
 
-                
-                {/* EMAIL - CANNOT EDIT */}
-<div className="mb-3">
+              <div className="d-flex flex-column flex-sm-row gap-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary w-100"
+                  onClick={() =>
+                    setIsEditing(false)
+                  }
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Cancel
+                </button>
 
-  <label className="form-label fw-bold">
-    Email Address
-  </label>
-
-  <div className="input-group">
-
-    <span className="input-group-text">
-      <i className="bi bi-envelope text-primary"></i>
-    </span>
-
-    <input
-      type="email"
-      className="form-control"
-      value={user.email}
-      disabled
-    />
-
-    <span className="input-group-text">
-      <i className="bi bi-lock-fill text-secondary"></i>
-    </span>
-
-  </div>
-
-  <small className="text-muted">
-    Email address cannot be changed
-  </small>
-
-</div>
-
-                {/* EDIT PHONE */}
-                <div className="mb-3">
-
-                  <label className="form-label fw-bold">
-                    Phone Number
-                  </label>
-
-                  <input
-                    type="tel"
-                    className="form-control"
-                    name="phone"
-                    value={editData.phone}
-                    onChange={handleEditChange}
-                    placeholder="Add phone number"
-                  />
-
-                </div>
-
-
-                {/* EDIT GENDER */}
-                <div className="mb-4">
-
-                  <label className="form-label fw-bold">
-                    Gender
-                  </label>
-
-                  <select
-                    className="form-select"
-                    name="gender"
-                    value={editData.gender}
-                    onChange={handleEditChange}
-                  >
-
-                    <option value="">
-                      Select Gender
-                    </option>
-
-                    <option value="Male">
-                      Male
-                    </option>
-
-                    <option value="Female">
-                      Female
-                    </option>
-
-                    <option value="Other">
-                      Other
-                    </option>
-
-                  </select>
-
-                </div>
-                {/* MEMBER SINCE */}
-<div className="mb-4">
-
-  <label className="form-label fw-bold">
-    Member Since
-  </label>
-
-  <div className="input-group">
-
-    <span className="input-group-text">
-      <i className="bi bi-calendar-check text-primary"></i>
-    </span>
-
-    <input
-      type="text"
-      className="form-control"
-      value={formatCreatedDate(user.createdAt)}
-      disabled
-    />
-
-    <span className="input-group-text">
-      <i className="bi bi-lock-fill text-secondary"></i>
-    </span>
-
-  </div>
-
-  <small className="text-muted">
-    Account creation date cannot be changed
-  </small>
-
-</div>
-
-
-                {/* BUTTONS */}
-                <div className="d-flex gap-2">
-
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary w-50"
-                    onClick={() =>
-                      setIsEditing(false)
-                    }
-                  >
-                    <i className="bi bi-x-circle me-2"></i>
-                    Cancel
-                  </button>
-
-
-                  <button
-                    type="submit"
-                    className="btn btn-primary w-50"
-                  >
-                    <i className="bi bi-check-circle me-2"></i>
-                    Save Changes
-                  </button>
-
-                </div>
-
-              </form>
-
-            )}
-
-          </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary w-100"
+                >
+                  <i className="bi bi-check-circle me-2"></i>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          )}
 
         </div>
 
+        {/* Security settings */}
+        <div className="glass-inner-card text-start">
 
-        {/* SECURITY SETTINGS */}
-        <div className="card shadow-sm border mb-4 text-start">
+          <button
+            type="button"
+            className="profile-security-header"
+            onClick={() => {
+              setShowPasswordForm(
+                !showPasswordForm
+              );
 
-          <div
-            className="card-header bg-transparent d-flex justify-content-between align-items-center p-3"
-            style={{ cursor: "pointer" }}
-            onClick={() =>
-              setShowPasswordForm(!showPasswordForm)
-            }
+              setPasswordError("");
+              setPasswordSuccess("");
+            }}
           >
+            <div>
+              <h5 className="fw-bold mb-1">
+                <i className="bi bi-shield-lock text-primary me-2"></i>
+                Security Settings
+              </h5>
 
-            <h5 className="mb-0 fw-bold">
-              Security Settings
-            </h5>
+              <p className="glass-section-description">
+                Change your password or delete your
+                account
+              </p>
+            </div>
 
             <i
               className={`bi bi-chevron-${
                 showPasswordForm ? "up" : "down"
               }`}
             ></i>
-
-          </div>
-
+          </button>
 
           {showPasswordForm && (
-
-            <div className="card-body">
+            <div className="profile-security-content">
 
               {passwordError && (
-
                 <div className="alert alert-danger">
+                  <i className="bi bi-exclamation-circle me-2"></i>
                   {passwordError}
                 </div>
-
               )}
-
 
               {passwordSuccess && (
-
                 <div className="alert alert-success">
+                  <i className="bi bi-check-circle me-2"></i>
                   {passwordSuccess}
                 </div>
-
               )}
-
 
               <form onSubmit={handlePasswordChange}>
 
                 <div className="mb-3">
-
-                  <label className="form-label">
+                  <label
+                    htmlFor="current-password"
+                    className="form-label fw-semibold"
+                  >
                     Current Password
                   </label>
 
                   <input
+                    id="current-password"
                     type="password"
                     className="form-control"
+                    placeholder="Enter current password"
                     required
-                    value={passwordData.currentPassword}
+                    value={
+                      passwordData.currentPassword
+                    }
                     onChange={(e) =>
                       setPasswordData({
                         ...passwordData,
@@ -892,19 +836,21 @@ const formatCreatedDate = (date) => {
                       })
                     }
                   />
-
                 </div>
 
-
                 <div className="mb-3">
-
-                  <label className="form-label">
+                  <label
+                    htmlFor="new-password"
+                    className="form-label fw-semibold"
+                  >
                     New Password
                   </label>
 
                   <input
+                    id="new-password"
                     type="password"
                     className="form-control"
+                    placeholder="Enter new password"
                     required
                     value={passwordData.newPassword}
                     onChange={(e) =>
@@ -915,21 +861,25 @@ const formatCreatedDate = (date) => {
                       })
                     }
                   />
-
                 </div>
 
-
                 <div className="mb-4">
-
-                  <label className="form-label">
+                  <label
+                    htmlFor="confirm-new-password"
+                    className="form-label fw-semibold"
+                  >
                     Confirm New Password
                   </label>
 
                   <input
+                    id="confirm-new-password"
                     type="password"
                     className="form-control"
+                    placeholder="Confirm new password"
                     required
-                    value={passwordData.confirmPassword}
+                    value={
+                      passwordData.confirmPassword
+                    }
                     onChange={(e) =>
                       setPasswordData({
                         ...passwordData,
@@ -938,25 +888,29 @@ const formatCreatedDate = (date) => {
                       })
                     }
                   />
-
                 </div>
-
 
                 <button
                   type="submit"
-                  className="btn btn-primary w-100"
+                  className="btn btn-primary w-100 mb-3"
                   disabled={isChangingPassword}
                 >
-                  {isChangingPassword
-                    ? "Updating..."
-                    : "Change Password"}
+                  {isChangingPassword ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-key me-2"></i>
+                      Change Password
+                    </>
+                  )}
                 </button>
 
-
-                {/* DELETE ACCOUNT */}
                 <button
                   type="button"
-                  className="btn btn-danger w-100 mt-3"
+                  className="btn btn-outline-danger w-100"
                   onClick={handleDeleteAccount}
                 >
                   <i className="bi bi-trash me-2"></i>
@@ -964,9 +918,7 @@ const formatCreatedDate = (date) => {
                 </button>
 
               </form>
-
             </div>
-
           )}
 
         </div>

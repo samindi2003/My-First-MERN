@@ -4,60 +4,75 @@
   --bg: #eff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --accent: #0d6efd;
+  --accent-bg: rgba(13, 110, 253, 0.1);
+  --accent-border: rgba(13, 110, 253, 0.4);
+
+  --glass-background: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-inner-background: rgba(255, 255, 255, 0.42);
+  --glass-input-background: rgba(255, 255, 255, 0.68);
+
+  --shadow:
+    rgba(0, 0, 0, 0.12) 0 10px 30px,
+    rgba(0, 0, 0, 0.06) 0 4px 10px;
+
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (max-width: 1024px) {
+@media (max-width: 1024px) {
+  :root {
     font-size: 16px;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ========================= */
+/* Dark Mode Variables */
+/* ========================= */
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-/* Dark Mode B&W Theme Overrides */
 [data-bs-theme="dark"] {
+  --text: #c4c7ce;
+  --text-h: #f8f9fa;
+  --bg: #16171d;
+  --border: #343640;
+  --code-bg: #1f2028;
+
+  --accent: #f8f9fa;
+  --accent-bg: rgba(248, 249, 250, 0.1);
+  --accent-border: rgba(248, 249, 250, 0.45);
+
+  --glass-background: rgba(20, 20, 25, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-inner-background: rgba(255, 255, 255, 0.07);
+  --glass-input-background: rgba(255, 255, 255, 0.09);
+
+  --shadow:
+    rgba(0, 0, 0, 0.45) 0 12px 35px,
+    rgba(0, 0, 0, 0.25) 0 4px 12px;
+
   --bs-primary: #f8f9fa;
   --bs-primary-rgb: 248, 249, 250;
   --bs-primary-text-emphasis: #f8f9fa;
   --bs-link-color: #f8f9fa;
   --bs-link-hover-color: #e9ecef;
 }
+
+/* ========================= */
+/* Bootstrap Dark Overrides */
+/* ========================= */
 
 [data-bs-theme="dark"] .btn-primary {
   --bs-btn-bg: #f8f9fa;
@@ -80,23 +95,63 @@
   color: #f8f9fa !important;
 }
 
+/* Keep success, warning and danger colors visible */
+[data-bs-theme="dark"] .text-success {
+  color: #75d69c !important;
+}
+
+[data-bs-theme="dark"] .text-warning {
+  color: #ffd166 !important;
+}
+
+[data-bs-theme="dark"] .text-danger {
+  color: #ff7f8b !important;
+}
+
+[data-bs-theme="dark"] .text-info {
+  color: #7bdff2 !important;
+}
+
+/* ========================= */
+/* General Page Settings */
+/* ========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  background-color: transparent !important;
+  position: relative;
+  font-family: var(--sans);
+  color: var(--text);
 }
 
 #root {
   width: 100%;
-  text-align: center;
+  min-height: 100vh;
   min-height: 100svh;
+
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+
+  text-align: center;
 }
 
 h1,
-h2 {
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--heading);
-  font-weight: 500;
   color: var(--text-h);
 }
 
@@ -104,20 +159,15 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
 }
+
 p {
   margin: 0;
 }
@@ -137,35 +187,587 @@ code {
   background: var(--code-bg);
 }
 
-body {
-  background-color: transparent !important;
-  position: relative;
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
 }
+
+/* ========================= */
+/* Background Video */
+/* ========================= */
 
 .video-background {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100vw;
   height: 100vh;
-  z-index: -1;
+
+  z-index: -2;
   overflow: hidden;
-  background-color: black;
+
+  background-color: #000;
+}
+
+.video-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .video-background iframe {
   position: absolute;
   top: 50%;
   left: 50%;
+
   width: 100vw;
   height: 56.25vw;
+
   min-height: 100vh;
   min-width: 177.77vh;
+
   transform: translate(-50%, -50%);
   pointer-events: none;
+
   transition: filter 0.3s ease;
 }
 
 [data-bs-theme="dark"] .video-background iframe {
-  filter: grayscale(100%) brightness(0.4);
+  filter: grayscale(100%) brightness(0.38);
+}
+
+[data-bs-theme="dark"] .video-background::after {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ========================= */
+/* Main Glass Page */
+/* ========================= */
+
+.glass-page {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 40px 20px;
+}
+
+/* Main white glass container */
+.white-glass-card {
+  width: 100%;
+  max-width: 600px;
+
+  padding: 32px;
+
+  background: var(--glass-background);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+
+  box-shadow: var(--shadow);
+
+  color: var(--text);
+  text-align: left;
+}
+
+/* Dashboard and Todo large card */
+.white-glass-card.large {
+  max-width: 950px;
+}
+
+/* Profile card */
+.profile-glass-card {
+  max-width: 720px;
+}
+
+/* Signup and login card */
+.signup-glass-card,
+.login-glass-card {
+  max-width: 520px;
+}
+
+/* Dashboard card */
+.dashboard-glass-card {
+  max-width: 950px;
+}
+
+/* Todo card */
+.todo-glass-card {
+  max-width: 950px;
+}
+
+/* ========================= */
+/* Inner Glass Cards */
+/* ========================= */
+
+.glass-inner-card {
+  width: 100%;
+  height: 100%;
+
+  padding: 22px;
+
+  background: var(--glass-inner-background);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+  color: var(--text);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.glass-inner-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-border);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.13);
+}
+
+/* Prevent forms from moving when hovered */
+form.glass-inner-card:hover {
+  transform: none;
+}
+
+/* ========================= */
+/* Glass Header Icon */
+/* ========================= */
+
+.glass-icon {
+  width: 76px;
+  height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  border-radius: 50%;
+
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+
+  color: var(--bs-primary);
+  font-size: 2rem;
+
+  box-shadow: 0 8px 22px rgba(13, 110, 253, 0.16);
+}
+
+.glass-subtitle {
+  color: var(--text);
+}
+
+/* ========================= */
+/* Forms and Inputs */
+/* ========================= */
+
+.white-glass-card .form-label {
+  color: var(--text-h);
+}
+
+.white-glass-card input,
+.white-glass-card select,
+.white-glass-card textarea,
+.white-glass-card .form-control,
+.white-glass-card .form-select {
+  width: 100%;
+
+  background: var(--glass-input-background) !important;
+  border: 1px solid var(--glass-border) !important;
+
+  color: var(--text-h) !important;
+
+  border-radius: 12px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.white-glass-card input::placeholder,
+.white-glass-card textarea::placeholder,
+.white-glass-card .form-control::placeholder {
+  color: var(--text) !important;
+  opacity: 0.8;
+}
+
+.white-glass-card input:focus,
+.white-glass-card select:focus,
+.white-glass-card textarea:focus,
+.white-glass-card .form-control:focus,
+.white-glass-card .form-select:focus {
+  background: var(--glass-input-background) !important;
+  border-color: var(--accent-border) !important;
+
+  color: var(--text-h) !important;
+
+  box-shadow: 0 0 0 0.2rem var(--accent-bg) !important;
+  outline: none;
+}
+
+/* Input icons */
+.white-glass-card .input-group-text {
+  background: var(--glass-inner-background);
+  border: 1px solid var(--glass-border);
+  color: var(--text-h);
+}
+
+/* Select menu options */
+.white-glass-card select option {
+  background: #fff;
+  color: #212529;
+}
+
+[data-bs-theme="dark"] .white-glass-card select option {
+  background: #24262d;
+  color: #f8f9fa;
+}
+
+/* Read-only and disabled inputs */
+.white-glass-card input:disabled,
+.white-glass-card input[readonly],
+.white-glass-card select:disabled,
+.white-glass-card textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Checkbox */
+.white-glass-card .form-check-input {
+  width: 20px;
+  height: 20px;
+
+  background-color: var(--glass-input-background);
+  border-color: var(--accent-border);
+}
+
+.white-glass-card .form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+/* ========================= */
+/* Bootstrap Cards Inside */
+/* ========================= */
+
+.white-glass-card .card {
+  background: var(--glass-inner-background);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+
+  color: var(--text);
+}
+
+.white-glass-card .card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-h);
+}
+
+.white-glass-card .card-body {
+  color: var(--text);
+}
+
+/* ========================= */
+/* Profile Picture */
+/* ========================= */
+
+.profile-picture-wrapper {
+  width: 140px;
+  height: 140px;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+  border: 4px solid var(--bs-primary);
+
+  background: var(--glass-inner-background);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.16);
+}
+
+.profile-picture-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-picture-wrapper i {
+  font-size: 5rem;
+}
+
+/* ========================= */
+/* Todo Page */
+/* ========================= */
+
+.todo-header {
+  position: relative;
+}
+
+.todo-back-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.todo-title-section {
+  padding: 0 140px;
+}
+
+.todo-form {
+  padding: 22px;
+
+  background: var(--glass-inner-background);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+}
+
+.todo-list {
+  text-align: left;
+}
+
+.glass-task-item {
+  padding: 16px;
+  margin-bottom: 15px;
+
+  background: var(--glass-inner-background);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.glass-task-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-border);
+}
+
+/* Overdue task */
+.glass-task-item.overdue,
+.white-glass-card .card.border-danger {
+  border: 1px solid rgba(220, 53, 69, 0.7) !important;
+}
+
+/* React DatePicker width */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+.react-datepicker {
+  font-family: var(--sans);
+}
+
+/* ========================= */
+/* Alerts */
+/* ========================= */
+
+.white-glass-card .alert {
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.white-glass-card .alert-success {
+  background: rgba(25, 135, 84, 0.17);
+  border: 1px solid rgba(25, 135, 84, 0.42);
+  color: #146c43;
+}
+
+.white-glass-card .alert-danger {
+  background: rgba(220, 53, 69, 0.17);
+  border: 1px solid rgba(220, 53, 69, 0.42);
+  color: #b02a37;
+}
+
+[data-bs-theme="dark"] .white-glass-card .alert-success {
+  color: #9be7b6;
+}
+
+[data-bs-theme="dark"] .white-glass-card .alert-danger {
+  color: #ff9da7;
+}
+
+/* ========================= */
+/* Buttons */
+/* ========================= */
+
+.white-glass-card .btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.white-glass-card .btn:hover {
+  transform: translateY(-1px);
+}
+
+.white-glass-card .btn-lg {
+  min-height: 52px;
+}
+
+/* ========================= */
+/* Progress Bar */
+/* ========================= */
+
+.white-glass-card .progress {
+  background: var(--glass-input-background);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.white-glass-card .progress-bar {
+  border-radius: 20px;
+}
+
+/* ========================= */
+/* Text Colors */
+/* ========================= */
+
+.white-glass-card .text-muted {
+  color: var(--text) !important;
+}
+
+.white-glass-card h1,
+.white-glass-card h2,
+.white-glass-card h3,
+.white-glass-card h4,
+.white-glass-card h5,
+.white-glass-card h6 {
+  color: var(--text-h);
+}
+
+/* Keep Bootstrap special heading colors */
+.white-glass-card .text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.white-glass-card .text-success {
+  color: var(--bs-success) !important;
+}
+
+.white-glass-card .text-warning {
+  color: var(--bs-warning) !important;
+}
+
+.white-glass-card .text-danger {
+  color: var(--bs-danger) !important;
+}
+
+.white-glass-card .text-info {
+  color: var(--bs-info) !important;
+}
+
+/* ========================= */
+/* Mobile Responsive Design */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .glass-page {
+    align-items: flex-start;
+    padding: 20px 12px;
+  }
+
+  .white-glass-card,
+  .white-glass-card.large {
+    padding: 22px 16px;
+    border-radius: 22px;
+  }
+
+  .glass-inner-card {
+    padding: 18px 12px;
+  }
+
+  .todo-header {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .todo-back-button {
+    position: static;
+    align-self: flex-start;
+  }
+
+  .todo-title-section {
+    padding: 0;
+  }
+
+  .profile-picture-wrapper {
+    width: 115px;
+    height: 115px;
+  }
+
+  .profile-picture-wrapper i {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-page {
+    padding: 12px 8px;
+  }
+
+  .white-glass-card,
+  .white-glass-card.large {
+    padding: 18px 12px;
+    border-radius: 18px;
+  }
+
+  .glass-inner-card {
+    border-radius: 15px;
+  }
+
+  .glass-icon {
+    width: 62px;
+    height: 62px;
+    font-size: 1.6rem;
+  }
+
+  .white-glass-card .btn-lg {
+    font-size: 1rem;
+  }
 }

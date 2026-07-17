@@ -4,9 +4,11 @@ import axios from "axios";
 
 function Dashboard() {
   const [userName, setUserName] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
+  const [profilePicture, setProfilePicture] =
+    useState("");
   const [todos, setTodos] = useState([]);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isLoadingStats, setIsLoadingStats] =
+    useState(true);
 
   const navigate = useNavigate();
 
@@ -20,12 +22,14 @@ function Dashboard() {
         return;
       }
 
-      const user = JSON.parse(userStr);
-
-      setUserName(user.name);
-      setProfilePicture(user.profilePicture || "");
-
       try {
+        const user = JSON.parse(userStr);
+
+        setUserName(user.name || "");
+        setProfilePicture(
+          user.profilePicture || ""
+        );
+
         const response = await axios.get(
           "http://localhost:5001/api/todos",
           {
@@ -38,13 +42,14 @@ function Dashboard() {
         setTodos(response.data);
       } catch (error) {
         console.error(
-          "Dashboard statistics error:",
+          "Dashboard loading error:",
           error
         );
 
         if (error.response?.status === 401) {
           localStorage.removeItem("user");
           localStorage.removeItem("token");
+
           navigate("/login");
         }
       } finally {
@@ -62,7 +67,8 @@ function Dashboard() {
     (todo) => todo.completed
   ).length;
 
-  const pendingTasks = totalTasks - completedTasks;
+  const pendingTasks =
+    totalTasks - completedTasks;
 
   const progress =
     totalTasks === 0
@@ -70,8 +76,8 @@ function Dashboard() {
       : Math.round(
           (completedTasks / totalTasks) * 100
         );
-  
-  // Logout function
+
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -80,26 +86,27 @@ function Dashboard() {
   };
 
   return (
-    <div className="d-flex flex-column align-items-center min-vh-100 bg-transparent text-center py-5">
-      <div
-        className="p-5 w-100"
-        style={{ maxWidth: "600px" }}
-      >
+    <div className="glass-page dashboard-glass-page">
+      <div className="white-glass-card large dashboard-glass-card">
+
         {/* Profile Picture */}
-        <div className="mb-4">
+        <div className="text-center mb-4">
           <div
+            className="mx-auto"
             style={{
-              width: "150px",
-              height: "150px",
+              width: "130px",
+              height: "130px",
               borderRadius: "50%",
               overflow: "hidden",
-              border: "4px solid var(--bs-primary)",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+              border:
+                "4px solid var(--bs-primary)",
+              boxShadow:
+                "0 8px 25px rgba(0, 0, 0, 0.15)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: "var(--bs-light)",
-              margin: "0 auto",
+              backgroundColor:
+                "rgba(255, 255, 255, 0.6)",
             }}
           >
             {profilePicture ? (
@@ -121,89 +128,128 @@ function Dashboard() {
           </div>
         </div>
 
-        <h1 className="display-4 fw-bold mb-3 text-primary">
-          Welcome, {userName}!
-        </h1>
+        {/* Welcome Section */}
+        <div className="text-center mb-4">
+          <h2 className="fw-bold text-primary">
+            👋 Welcome, {userName}
+          </h2>
 
-        <p className="lead mb-4 text-secondary">
-          You have successfully logged in to your account.
-        </p>
+          <p className="text-muted mb-0">
+            Manage your profile and daily tasks
+          </p>
+        </div>
 
-        {/* Task Statistics */}
+        {/* Dashboard Statistics */}
         <div className="row g-3 mb-4">
-          <div className="col-6">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <i className="bi bi-list-task fs-2 text-primary"></i>
 
-                <h6 className="mt-2 mb-1">
-                  Total Tasks
-                </h6>
+          {/* Total Tasks */}
+          <div className="col-6 col-md-3">
+            <div className="glass-inner-card text-center h-100">
+              <i className="bi bi-list-task fs-2 text-primary"></i>
 
-                <h3 className="fw-bold mb-0">
-                  {isLoadingStats ? "..." : totalTasks}
-                </h3>
-              </div>
+              <h3 className="text-primary fw-bold mt-2">
+                {isLoadingStats
+                  ? "..."
+                  : totalTasks}
+              </h3>
+
+              <p className="text-muted mb-0">
+                Total Tasks
+              </p>
             </div>
           </div>
 
-          <div className="col-6">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <i className="bi bi-check-circle fs-2 text-success"></i>
+          {/* Completed Tasks */}
+          <div className="col-6 col-md-3">
+            <div className="glass-inner-card text-center h-100">
+              <i className="bi bi-check-circle-fill fs-2 text-success"></i>
 
-                <h6 className="mt-2 mb-1">
-                  Completed
-                </h6>
+              <h3 className="text-success fw-bold mt-2">
+                {isLoadingStats
+                  ? "..."
+                  : completedTasks}
+              </h3>
 
-                <h3 className="fw-bold mb-0">
-                  {isLoadingStats
-                    ? "..."
-                    : completedTasks}
-                </h3>
-              </div>
+              <p className="text-muted mb-0">
+                Completed
+              </p>
             </div>
           </div>
 
-          <div className="col-6">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <i className="bi bi-hourglass-split fs-2 text-warning"></i>
+          {/* Pending Tasks */}
+          <div className="col-6 col-md-3">
+            <div className="glass-inner-card text-center h-100">
+              <i className="bi bi-hourglass-split fs-2 text-warning"></i>
 
-                <h6 className="mt-2 mb-1">
-                  Pending
-                </h6>
+              <h3 className="text-warning fw-bold mt-2">
+                {isLoadingStats
+                  ? "..."
+                  : pendingTasks}
+              </h3>
 
-                <h3 className="fw-bold mb-0">
-                  {isLoadingStats ? "..." : pendingTasks}
-                </h3>
-              </div>
+              <p className="text-muted mb-0">
+                Pending
+              </p>
             </div>
           </div>
 
-          <div className="col-6">
-            <div className="card shadow-sm border-0 h-100">
-              <div className="card-body text-center">
-                <i className="bi bi-graph-up-arrow fs-2 text-info"></i>
+          {/* Progress */}
+          <div className="col-6 col-md-3">
+            <div className="glass-inner-card text-center h-100">
+              <i className="bi bi-graph-up-arrow fs-2 text-info"></i>
 
-                <h6 className="mt-2 mb-1">
-                  Progress
-                </h6>
+              <h3 className="text-info fw-bold mt-2">
+                {isLoadingStats
+                  ? "..."
+                  : `${progress}%`}
+              </h3>
 
-                <h3 className="fw-bold mb-0">
-                  {isLoadingStats
-                    ? "..."
-                    : `${progress}%`}
-                </h3>
-              </div>
+              <p className="text-muted mb-0">
+                Progress
+              </p>
             </div>
           </div>
         </div>
 
+        {/* Progress Bar */}
+        <div className="glass-inner-card mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <span className="fw-semibold">
+              Task Progress
+            </span>
+
+            <span className="text-primary fw-bold">
+              {isLoadingStats
+                ? "..."
+                : `${progress}%`}
+            </span>
+          </div>
+
+          <div
+            className="progress"
+            style={{ height: "12px" }}
+          >
+            <div
+              className="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              style={{
+                width: `${progress}%`,
+              }}
+              aria-valuenow={progress}
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+        </div>
+
         {/* Action Buttons */}
-        <div className="d-flex flex-column gap-3 mb-5">
+        <div className="d-flex flex-column gap-3">
+
           <button
-            onClick={() => navigate("/profile")}
+            type="button"
+            onClick={() =>
+              navigate("/profile")
+            }
             className="btn btn-primary btn-lg w-100 fw-bold shadow-sm rounded-pill"
           >
             <i className="bi bi-person me-2"></i>
@@ -211,6 +257,7 @@ function Dashboard() {
           </button>
 
           <button
+            type="button"
             onClick={() => navigate("/todo")}
             className="btn btn-success btn-lg w-100 fw-bold shadow-sm rounded-pill"
           >
@@ -219,12 +266,14 @@ function Dashboard() {
           </button>
 
           <button
+            type="button"
             onClick={handleLogout}
             className="btn btn-outline-danger btn-lg w-100 fw-bold shadow-sm rounded-pill"
           >
             <i className="bi bi-box-arrow-right me-2"></i>
             Logout
           </button>
+
         </div>
       </div>
     </div>

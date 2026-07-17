@@ -9,8 +9,10 @@ function Todo() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState(null);
+
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -25,7 +27,7 @@ function Todo() {
     },
   };
 
-  // LOAD TODOS
+  // Load all todos
   const fetchTodos = async () => {
     try {
       setIsLoading(true);
@@ -43,11 +45,15 @@ function Todo() {
       if (error.response?.status === 401) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+
         navigate("/login");
         return;
       }
 
-      setError("Failed to load tasks");
+      setError(
+        error.response?.data?.message ||
+          "Failed to load tasks."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -62,12 +68,12 @@ function Todo() {
     fetchTodos();
   }, []);
 
-  // ADD TODO
+  // Add a new todo
   const handleAddTodo = async (e) => {
     e.preventDefault();
 
     if (!title.trim()) {
-      setError("Please enter a task");
+      setError("Please enter a task.");
       return;
     }
 
@@ -75,21 +81,25 @@ function Todo() {
       setError("");
       setMessage("");
 
-     const response = await axios.post(
-  "http://localhost:5001/api/todos",
-  {
-    title,
-    dueDate: dueDate
-  ? dueDate.toISOString()
-  : null,
-  },
-  authHeader
-);
+      const response = await axios.post(
+        "http://localhost:5001/api/todos",
+        {
+          title: title.trim(),
+          dueDate: dueDate
+            ? dueDate.toISOString()
+            : null,
+        },
+        authHeader
+      );
 
-      setTodos([response.data.todo, ...todos]);
+      setTodos((previousTodos) => [
+        response.data.todo,
+        ...previousTodos,
+      ]);
+
       setTitle("");
       setDueDate(null);
-      setMessage("Task added successfully");
+      setMessage("Task added successfully.");
 
       setTimeout(() => {
         setMessage("");
@@ -99,15 +109,16 @@ function Todo() {
 
       setError(
         error.response?.data?.message ||
-          "Failed to add task"
+          "Failed to add task."
       );
     }
   };
 
-  // COMPLETE OR UNCOMPLETE TODO
+  // Complete or uncomplete a todo
   const handleToggleTodo = async (todo) => {
     try {
       setError("");
+      setMessage("");
 
       const response = await axios.put(
         `http://localhost:5001/api/todos/${todo._id}`,
@@ -117,8 +128,8 @@ function Todo() {
         authHeader
       );
 
-      setTodos(
-        todos.map((item) =>
+      setTodos((previousTodos) =>
+        previousTodos.map((item) =>
           item._id === todo._id
             ? response.data.todo
             : item
@@ -127,36 +138,48 @@ function Todo() {
     } catch (error) {
       console.error("Toggle todo error:", error);
 
-      setError("Failed to update task");
+      setError(
+        error.response?.data?.message ||
+          "Failed to update task."
+      );
     }
   };
 
-  // START EDITING
+  // Start editing a todo
   const handleStartEdit = (todo) => {
     setEditingId(todo._id);
     setEditingTitle(todo.title);
+    setError("");
+    setMessage("");
   };
 
-  // SAVE EDITED TODO
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingTitle("");
+  };
+
+  // Save edited todo
   const handleSaveEdit = async (todoId) => {
     if (!editingTitle.trim()) {
-      setError("Task title cannot be empty");
+      setError("Task title cannot be empty.");
       return;
     }
 
     try {
       setError("");
+      setMessage("");
 
       const response = await axios.put(
         `http://localhost:5001/api/todos/${todoId}`,
         {
-          title: editingTitle,
+          title: editingTitle.trim(),
         },
         authHeader
       );
 
-      setTodos(
-        todos.map((item) =>
+      setTodos((previousTodos) =>
+        previousTodos.map((item) =>
           item._id === todoId
             ? response.data.todo
             : item
@@ -165,7 +188,7 @@ function Todo() {
 
       setEditingId(null);
       setEditingTitle("");
-      setMessage("Task updated successfully");
+      setMessage("Task updated successfully.");
 
       setTimeout(() => {
         setMessage("");
@@ -175,12 +198,12 @@ function Todo() {
 
       setError(
         error.response?.data?.message ||
-          "Failed to edit task"
+          "Failed to edit task."
       );
     }
   };
 
-  // DELETE TODO
+  // Delete a todo
   const handleDeleteTodo = async (todoId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this task?"
@@ -190,17 +213,25 @@ function Todo() {
 
     try {
       setError("");
+      setMessage("");
 
       await axios.delete(
         `http://localhost:5001/api/todos/${todoId}`,
         authHeader
       );
 
-      setTodos(
-        todos.filter((todo) => todo._id !== todoId)
+      setTodos((previousTodos) =>
+        previousTodos.filter(
+          (todo) => todo._id !== todoId
+        )
       );
 
-      setMessage("Task deleted successfully");
+      if (editingId === todoId) {
+        setEditingId(null);
+        setEditingTitle("");
+      }
+
+      setMessage("Task deleted successfully.");
 
       setTimeout(() => {
         setMessage("");
@@ -208,228 +239,320 @@ function Todo() {
     } catch (error) {
       console.error("Delete todo error:", error);
 
-      setError("Failed to delete task");
+      setError(
+        error.response?.data?.message ||
+          "Failed to delete task."
+      );
     }
   };
 
+  // Check whether the task is overdue
+  const isOverdue = (todo) => {
+    return (
+      todo.dueDate &&
+      !todo.completed &&
+      new Date(todo.dueDate) < new Date()
+    );
+  };
+
   return (
-    <div className="container py-5">
-      <div
-        className="card shadow mx-auto"
-        style={{ maxWidth: "700px" }}
-      >
-        <div className="card-body p-4">
+    <div className="glass-page todo-glass-page">
+      <div className="white-glass-card large todo-glass-card">
 
-          <div className="d-flex justify-content-between align-items-center mb-4">
+        {/* Header */}
+        <div className="todo-header mb-4">
+          <button
+            type="button"
+            className="btn btn-outline-primary todo-back-button"
+            onClick={() => navigate("/dashboard")}
+          >
+            <i className="bi bi-arrow-left me-2"></i>
+            Dashboard
+          </button>
 
-            <h2 className="fw-bold text-primary mb-0">
-              <i className="bi bi-check2-square me-2"></i>
+          <div className="text-center todo-title-section">
+            <div className="glass-icon mb-3">
+              <i className="bi bi-check2-square"></i>
+            </div>
+
+            <h2 className="fw-bold text-primary mb-2">
               My To-Do List
             </h2>
 
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => navigate("/dashboard")}
-            >
-              <i className="bi bi-arrow-left me-2"></i>
-              Dashboard
-            </button>
-
+            <p className="glass-subtitle">
+              Add and manage your daily tasks
+            </p>
           </div>
+        </div>
 
-          {message && (
-            <div className="alert alert-success">
-              <i className="bi bi-check-circle-fill me-2"></i>
-              {message}
-            </div>
-          )}
+        {/* Success message */}
+        {message && (
+          <div className="alert alert-success">
+            <i className="bi bi-check-circle-fill me-2"></i>
+            {message}
+          </div>
+        )}
 
-          {error && (
-            <div className="alert alert-danger">
-              <i className="bi bi-exclamation-circle-fill me-2"></i>
-              {error}
-            </div>
-          )}
+        {/* Error message */}
+        {error && (
+          <div className="alert alert-danger">
+            <i className="bi bi-exclamation-circle-fill me-2"></i>
+            {error}
+          </div>
+        )}
 
-          <form onSubmit={handleAddTodo} className="mb-4">
+        {/* Add task form */}
+        <form
+          onSubmit={handleAddTodo}
+          className="todo-form mb-4"
+        >
+          <div className="row g-3 align-items-end">
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">
+                Task Title
+              </label>
 
-  {/* Task Title */}
-  <div className="mb-3">
-    <label className="form-label fw-bold">
-      Task
-    </label>
-
-    <input
-      type="text"
-      className="form-control"
-      placeholder="Enter your task"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-    />
-  </div>
-
-  {/* Deadline */}
-  <div className="mb-3">
-    <label className="form-label fw-bold">
-      Deadline
-    </label>
-
-   <DatePicker
-  selected={dueDate}
-  onChange={(date) => setDueDate(date)}
-  dateFormat="dd/MM/yyyy"
-  placeholderText="Select deadline"
-  className="form-control"
-  minDate={new Date()}
-/>
-  </div>
-
-  {/* Add Button */}
-  <button
-    type="submit"
-    className="btn btn-primary w-100"
-  >
-    <i className="bi bi-plus-circle me-2"></i>
-    Add Task
-  </button>
-
-</form>
-
-          {isLoading ? (
-            <div className="text-center py-4">
-              <div
-                className="spinner-border text-primary"
-                role="status"
-              >
-                <span className="visually-hidden">
-                  Loading...
+              <div className="input-group">
+                <span className="input-group-text">
+                  <i className="bi bi-list-task"></i>
                 </span>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter your task"
+                  value={title}
+                  onChange={(e) =>
+                    setTitle(e.target.value)
+                  }
+                />
               </div>
             </div>
-          ) : todos.length === 0 ? (
-            <div className="text-center text-muted py-4">
-              <i
-                className="bi bi-clipboard-check"
-                style={{ fontSize: "3rem" }}
-              ></i>
 
-              <p className="mt-3 mb-0">
-                No tasks yet. Add your first task.
-              </p>
+            <div className="col-md-4">
+              <label className="form-label fw-semibold">
+                Due Date and Time
+              </label>
+
+              <DatePicker
+                selected={dueDate}
+                onChange={(date) =>
+                  setDueDate(date)
+                }
+                showTimeSelect
+                timeIntervals={15}
+                dateFormat="MMMM d, yyyy h:mm aa"
+                placeholderText="Select date and time"
+                minDate={new Date()}
+                className="form-control"
+                wrapperClassName="w-100"
+                isClearable
+              />
             </div>
-          ) : (
-            <div className="list-group">
 
-              {todos.map((todo) => (
-                <div
-                  key={todo._id}
-                  className="list-group-item d-flex align-items-center gap-3"
-                >
+            <div className="col-md-2">
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+              >
+                <i className="bi bi-plus-circle me-2"></i>
+                Add
+              </button>
+            </div>
+          </div>
+        </form>
 
-                  <input
-                    type="checkbox"
-                    className="form-check-input mt-0"
-                    checked={todo.completed}
-                    onChange={() => handleToggleTodo(todo)}
-                  />
+        {/* Loading */}
+        {isLoading && (
+          <div className="text-center py-5">
+            <div
+              className="spinner-border text-primary"
+              role="status"
+            >
+              <span className="visually-hidden">
+                Loading...
+              </span>
+            </div>
 
-                  <div className="flex-grow-1">
+            <p className="text-muted mt-3 mb-0">
+              Loading tasks...
+            </p>
+          </div>
+        )}
 
-                    {editingId === todo._id ? (
+        {/* No tasks */}
+        {!isLoading && todos.length === 0 && (
+          <div className="text-center py-5">
+            <i className="bi bi-clipboard-check display-4 text-muted"></i>
 
+            <h5 className="mt-3">
+              No tasks added yet
+            </h5>
+
+            <p className="text-muted">
+              Add your first task using the form above.
+            </p>
+          </div>
+        )}
+
+        {/* Todo list */}
+        {!isLoading && todos.length > 0 && (
+          <div className="todo-list">
+            {todos.map((todo) => (
+              <div
+                key={todo._id}
+                className={`card shadow-sm mb-3 ${
+                  isOverdue(todo)
+                    ? "border-danger"
+                    : ""
+                }`}
+              >
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center gap-3">
+
+                    <div className="d-flex align-items-center flex-grow-1 gap-3">
                       <input
-                        type="text"
-                        className="form-control"
-                        value={editingTitle}
-                        onChange={(e) =>
-                          setEditingTitle(e.target.value)
+                        type="checkbox"
+                        className="form-check-input mt-0"
+                        checked={Boolean(todo.completed)}
+                        onChange={() =>
+                          handleToggleTodo(todo)
                         }
                       />
 
-                    ) : (
+                      <div className="flex-grow-1">
+                        {editingId === todo._id ? (
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editingTitle}
+                            onChange={(e) =>
+                              setEditingTitle(
+                                e.target.value
+                              )
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleSaveEdit(
+                                  todo._id
+                                );
+                              }
 
-                     <div>
-  <div
-    className={
-      todo.completed
-        ? "text-decoration-line-through text-muted"
-        : ""
-    }
-  >
-    {todo.title}
-  </div>
+                              if (e.key === "Escape") {
+                                handleCancelEdit();
+                              }
+                            }}
+                            autoFocus
+                          />
+                        ) : (
+                          <>
+                            <h6
+                              className={`mb-1 ${
+                                todo.completed
+                                  ? "text-decoration-line-through text-muted"
+                                  : ""
+                              }`}
+                            >
+                              {todo.title}
+                            </h6>
 
-  {todo.dueDate && (
-    <small
-      className={
-        !todo.completed &&
-        new Date(todo.dueDate) < new Date()
-          ? "text-danger"
-          : "text-muted"
-      }
-    >
-      <i className="bi bi-calendar-event me-1"></i>
+                            {todo.dueDate && (
+                              <div>
+                                <small
+                                  className={
+                                    isOverdue(todo)
+                                      ? "text-danger fw-semibold"
+                                      : "text-muted"
+                                  }
+                                >
+                                  <i className="bi bi-calendar-event me-1"></i>
 
-      Deadline:{" "}
-      {new Date(todo.dueDate).toLocaleString()}
-    </small>
-  )}
-</div>
+                                  {new Date(
+                                    todo.dueDate
+                                  ).toLocaleString()}
 
-                    )}
+                                  {isOverdue(todo) && (
+                                    <span className="ms-2">
+                                      <i className="bi bi-exclamation-triangle-fill me-1"></i>
+                                      Overdue
+                                    </span>
+                                  )}
+                                </small>
+                              </div>
+                            )}
 
-                  </div>
+                            {todo.completed && (
+                              <small className="text-success">
+                                <i className="bi bi-check-circle-fill me-1"></i>
+                                Completed
+                              </small>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
 
-                  {editingId === todo._id ? (
-                    <>
+                    <div className="d-flex gap-2">
+                      {editingId === todo._id ? (
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn-success btn-sm"
+                            onClick={() =>
+                              handleSaveEdit(
+                                todo._id
+                              )
+                            }
+                            title="Save"
+                          >
+                            <i className="bi bi-check-lg"></i>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={
+                              handleCancelEdit
+                            }
+                            title="Cancel"
+                          >
+                            <i className="bi bi-x-lg"></i>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() =>
+                            handleStartEdit(todo)
+                          }
+                          title="Edit"
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </button>
+                      )}
+
                       <button
-                        className="btn btn-success btn-sm"
-                        onClick={() =>
-                          handleSaveEdit(todo._id)
-                        }
-                      >
-                        <i className="bi bi-check-lg"></i>
-                      </button>
-
-                      <button
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() => {
-                          setEditingId(null);
-                          setEditingTitle("");
-                        }}
-                      >
-                        <i className="bi bi-x-lg"></i>
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={() =>
-                          handleStartEdit(todo)
-                        }
-                      >
-                        <i className="bi bi-pencil"></i>
-                      </button>
-
-                      <button
+                        type="button"
                         className="btn btn-outline-danger btn-sm"
                         onClick={() =>
-                          handleDeleteTodo(todo._id)
+                          handleDeleteTodo(
+                            todo._id
+                          )
                         }
+                        title="Delete"
                       >
                         <i className="bi bi-trash"></i>
                       </button>
-                    </>
-                  )}
+                    </div>
 
+                  </div>
                 </div>
-              ))}
+              </div>
+            ))}
+          </div>
+        )}
 
-            </div>
-          )}
-
-        </div>
       </div>
     </div>
   );
