@@ -9,6 +9,7 @@ function Todo() {
   const [todos, setTodos] = useState([]);
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
@@ -254,6 +255,12 @@ function Todo() {
       new Date(todo.dueDate) < new Date()
     );
   };
+ const filteredTodos = todos.filter((todo) =>
+  (todo.title || "")
+    .toLowerCase()
+    .includes(searchTerm.trim().toLowerCase())
+);
+
 
   return (
     <div className="glass-page todo-glass-page">
@@ -300,6 +307,37 @@ function Todo() {
             {error}
           </div>
         )}
+        {/* Search Tasks */}
+<div className="glass-inner-card mb-4">
+  <label className="form-label fw-semibold">
+    Search Tasks
+  </label>
+
+  <div className="input-group">
+    <span className="input-group-text">
+      <i className="bi bi-search"></i>
+    </span>
+
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Search by task title..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+
+    {searchTerm && (
+      <button
+        type="button"
+        className="btn btn-outline-secondary"
+        onClick={() => setSearchTerm("")}
+        title="Clear search"
+      >
+        <i className="bi bi-x-lg"></i>
+      </button>
+    )}
+  </div>
+</div>
 
         {/* Add task form */}
         <form
@@ -394,11 +432,37 @@ function Todo() {
             </p>
           </div>
         )}
+        {/* No Search Results */}
+{!isLoading &&
+  todos.length > 0 &&
+  filteredTodos.length === 0 && (
+    <div className="glass-inner-card text-center py-5">
+      <i className="bi bi-search fs-1 text-muted"></i>
+
+      <h5 className="mt-3">
+        No matching tasks found
+      </h5>
+
+      <p className="text-muted mb-3">
+        No tasks match "{searchTerm}".
+      </p>
+
+      <button
+        type="button"
+        className="btn btn-outline-primary"
+        onClick={() => setSearchTerm("")}
+      >
+        Clear Search
+      </button>
+    </div>
+  )}
 
         {/* Todo list */}
-        {!isLoading && todos.length > 0 && (
-          <div className="todo-list">
-            {todos.map((todo) => (
+        {!isLoading && filteredTodos.length > 0 && (
+  <div className="todo-list">
+    {filteredTodos.map((todo) => (
+    
+    
               <div
                 key={todo._id}
                 className={`card shadow-sm mb-3 ${
