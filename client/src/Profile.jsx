@@ -5,11 +5,17 @@ import axios from "axios";
 function Profile() {
   const [user, setUser] = useState(null);
 
-  const [profilePicture, setProfilePicture] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const [showPicMenu, setShowPicMenu] = useState(false);
+  const [profilePicture, setProfilePicture] =
+    useState("");
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isUploading, setIsUploading] =
+    useState(false);
+
+  const [showPicMenu, setShowPicMenu] =
+    useState(false);
+
+  const [isEditing, setIsEditing] =
+    useState(false);
 
   const [editData, setEditData] = useState({
     name: "",
@@ -20,37 +26,57 @@ function Profile() {
   const [showPasswordForm, setShowPasswordForm] =
     useState(false);
 
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
+  const [passwordData, setPasswordData] =
+    useState({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
 
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordSuccess, setPasswordSuccess] = useState("");
-  const [isChangingPassword, setIsChangingPassword] =
-    useState(false);
+  const [passwordError, setPasswordError] =
+    useState("");
+
+  const [passwordSuccess, setPasswordSuccess] =
+    useState("");
+
+  const [
+    isChangingPassword,
+    setIsChangingPassword,
+  ] = useState(false);
 
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Get user from localStorage
+  // Load user from localStorage
   useEffect(() => {
     const userStr = localStorage.getItem("user");
 
-    if (userStr) {
+    if (!userStr) {
+      navigate("/login");
+      return;
+    }
+
+    try {
       const parsedUser = JSON.parse(userStr);
 
       setUser(parsedUser);
       setProfilePicture(
         parsedUser.profilePicture || ""
       );
-    } else {
+    } catch (error) {
+      console.error(
+        "Unable to load user information:",
+        error
+      );
+
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+
       navigate("/login");
     }
   }, [navigate]);
 
-  // Convert image to Base64
+  // Convert selected image to Base64
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -67,11 +93,24 @@ function Profile() {
     });
   };
 
-  // Change profile picture
+  // Upload profile picture
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
 
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file.");
+      return;
+    }
+
+    // Limit image size to 3 MB
+    if (file.size > 3 * 1024 * 1024) {
+      alert(
+        "The image is too large. Please select an image smaller than 3 MB."
+      );
+      return;
+    }
 
     try {
       setIsUploading(true);
@@ -101,14 +140,17 @@ function Profile() {
       if (userStr) {
         const storedUser = JSON.parse(userStr);
 
-        storedUser.profilePicture = updatedPicture;
+        const updatedUser = {
+          ...storedUser,
+          profilePicture: updatedPicture,
+        };
 
         localStorage.setItem(
           "user",
-          JSON.stringify(storedUser)
+          JSON.stringify(updatedUser)
         );
 
-        setUser(storedUser);
+        setUser(updatedUser);
       }
 
       setShowPicMenu(false);
@@ -119,7 +161,8 @@ function Profile() {
       );
 
       alert(
-        "Failed to upload profile picture. Please try again."
+        error.response?.data?.message ||
+          "Failed to upload profile picture."
       );
     } finally {
       setIsUploading(false);
@@ -132,6 +175,12 @@ function Profile() {
 
   // Remove profile picture
   const handleRemovePicture = async () => {
+    const confirmRemove = window.confirm(
+      "Do you want to remove your profile picture?"
+    );
+
+    if (!confirmRemove) return;
+
     try {
       setIsUploading(true);
 
@@ -156,14 +205,17 @@ function Profile() {
       if (userStr) {
         const storedUser = JSON.parse(userStr);
 
-        storedUser.profilePicture = "";
+        const updatedUser = {
+          ...storedUser,
+          profilePicture: "",
+        };
 
         localStorage.setItem(
           "user",
-          JSON.stringify(storedUser)
+          JSON.stringify(updatedUser)
         );
 
-        setUser(storedUser);
+        setUser(updatedUser);
       }
 
       setShowPicMenu(false);
@@ -173,7 +225,10 @@ function Profile() {
         error
       );
 
-      alert("Failed to remove profile picture.");
+      alert(
+        error.response?.data?.message ||
+          "Failed to remove profile picture."
+      );
     } finally {
       setIsUploading(false);
     }
@@ -194,30 +249,35 @@ function Profile() {
     );
   };
 
-  // Open edit profile form
+  // Open profile edit form
   const handleEdit = () => {
     setEditData({
-      name: user.name || "",
-      phone: user.phone || "",
-      gender: user.gender || "",
+      name: user?.name || "",
+      phone: user?.phone || "",
+      gender: user?.gender || "",
     });
 
     setIsEditing(true);
   };
 
-  // Edit input change
+  // Handle profile edit input
   const handleEditChange = (e) => {
     const { name, value } = e.target;
 
-    setEditData({
-      ...editData,
+    setEditData((previousData) => ({
+      ...previousData,
       [name]: value,
-    });
+    }));
   };
 
   // Save profile changes
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+
+    if (!editData.name.trim()) {
+      alert("Full name is required.");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -225,8 +285,8 @@ function Profile() {
       const response = await axios.put(
         "http://localhost:5001/api/auth/profile",
         {
-          name: editData.name,
-          phone: editData.phone,
+          name: editData.name.trim(),
+          phone: editData.phone.trim(),
           gender: editData.gender,
         },
         {
@@ -239,6 +299,7 @@ function Profile() {
       const updatedUser = response.data.user;
 
       setUser(updatedUser);
+
       setProfilePicture(
         updatedUser.profilePicture || ""
       );
@@ -264,12 +325,45 @@ function Profile() {
     }
   };
 
+  // Handle password input
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setPasswordData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+
+    setPasswordError("");
+    setPasswordSuccess("");
+  };
+
   // Change password
   const handlePasswordChange = async (e) => {
     e.preventDefault();
 
     setPasswordError("");
     setPasswordSuccess("");
+
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
+      setPasswordError(
+        "Please complete all password fields."
+      );
+
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError(
+        "The new password must contain at least 6 characters."
+      );
+
+      return;
+    }
 
     if (
       passwordData.newPassword !==
@@ -292,6 +386,7 @@ function Profile() {
         {
           currentPassword:
             passwordData.currentPassword,
+
           newPassword:
             passwordData.newPassword,
         },
@@ -302,7 +397,10 @@ function Profile() {
         }
       );
 
-      setPasswordSuccess(response.data.message);
+      setPasswordSuccess(
+        response.data.message ||
+          "Password changed successfully."
+      );
 
       setPasswordData({
         currentPassword: "",
@@ -327,7 +425,7 @@ function Profile() {
   // Delete account
   const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete your account?"
+      "Are you sure you want to permanently delete your account?"
     );
 
     if (!confirmDelete) return;
@@ -351,7 +449,10 @@ function Profile() {
 
       navigate("/register");
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Account deletion error:",
+        error
+      );
 
       alert(
         error.response?.data?.message ||
@@ -360,16 +461,32 @@ function Profile() {
     }
   };
 
+  // Open or close security settings
+  const toggleSecuritySettings = () => {
+    setShowPasswordForm(
+      (previousValue) => !previousValue
+    );
+
+    setPasswordError("");
+    setPasswordSuccess("");
+  };
+
   if (!user) {
     return (
       <div className="glass-page">
-        <div
-          className="spinner-border text-primary"
-          role="status"
-        >
-          <span className="visually-hidden">
-            Loading...
-          </span>
+        <div className="text-center">
+          <div
+            className="spinner-border text-primary"
+            role="status"
+          >
+            <span className="visually-hidden">
+              Loading...
+            </span>
+          </div>
+
+          <p className="text-muted mt-3">
+            Loading profile...
+          </p>
         </div>
       </div>
     );
@@ -391,7 +508,7 @@ function Profile() {
           </button>
         </div>
 
-        {/* Heading */}
+        {/* Page heading */}
         <div className="text-center mb-4">
           <div className="glass-icon mb-3">
             <i className="bi bi-person-vcard"></i>
@@ -401,85 +518,96 @@ function Profile() {
             Your Profile
           </h2>
 
-          <p className="glass-subtitle">
+          <p className="glass-subtitle mb-0">
             Manage your personal information and
             account security
           </p>
         </div>
 
         {/* Profile picture */}
-        <div className="profile-picture-section mb-4">
-          <div className="profile-picture-wrapper">
+        <div className="profile-photo-section">
+          <div className="profile-photo-wrapper">
 
-            <div className="profile-picture-circle">
-              {isUploading ? (
+            {isUploading ? (
+              <div className="profile-photo-placeholder">
                 <div
                   className="spinner-border text-primary"
                   role="status"
                 >
                   <span className="visually-hidden">
-                    Loading...
+                    Uploading...
                   </span>
                 </div>
-              ) : profilePicture ? (
-                <img
-                  src={profilePicture}
-                  alt="Profile"
-                  className="profile-picture-image"
-                />
-              ) : (
-                <i className="bi bi-person-circle profile-placeholder-icon"></i>
-              )}
-            </div>
-
-            <button
-              type="button"
-              className="btn btn-primary profile-picture-edit-button"
-              onClick={() =>
-                setShowPicMenu(!showPicMenu)
-              }
-              disabled={isUploading}
-              aria-label="Edit profile picture"
-            >
-              <i className="bi bi-pencil-fill"></i>
-            </button>
-
-            {showPicMenu && (
-              <div className="profile-picture-menu">
-                <button
-                  type="button"
-                  className="profile-picture-menu-item"
-                  onClick={() => {
-                    setShowPicMenu(false);
-
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  <i className="bi bi-camera me-2"></i>
-                  Change picture
-                </button>
-
-                {profilePicture && (
-                  <button
-                    type="button"
-                    className="profile-picture-menu-item text-danger"
-                    onClick={handleRemovePicture}
-                  >
-                    <i className="bi bi-trash me-2"></i>
-                    Remove picture
-                  </button>
-                )}
+              </div>
+            ) : profilePicture ? (
+              <img
+                src={profilePicture}
+                alt={`${user.name}'s profile`}
+                className="profile-photo"
+              />
+            ) : (
+              <div className="profile-photo-placeholder">
+                <i className="bi bi-person-fill"></i>
               </div>
             )}
 
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="d-none"
-            />
+            <button
+              type="button"
+              className="profile-photo-edit-button"
+              onClick={() =>
+                setShowPicMenu(
+                  (previousValue) => !previousValue
+                )
+              }
+              disabled={isUploading}
+              title="Update profile picture"
+              aria-label="Update profile picture"
+            >
+              <i className="bi bi-camera-fill"></i>
+            </button>
           </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            className="d-none"
+            onChange={handleFileChange}
+          />
+
+          {showPicMenu && (
+            <div className="profile-photo-menu">
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  setShowPicMenu(false);
+                  fileInputRef.current?.click();
+                }}
+                disabled={isUploading}
+              >
+                <i className="bi bi-upload me-2"></i>
+                Upload Photo
+              </button>
+
+              {profilePicture && (
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={handleRemovePicture}
+                  disabled={isUploading}
+                >
+                  <i className="bi bi-trash me-2"></i>
+                  Remove Photo
+                </button>
+              )}
+            </div>
+          )}
+
+          <p className="profile-photo-help">
+            Click the camera icon to update your
+            picture
+          </p>
         </div>
 
         {/* Profile information */}
@@ -487,14 +615,14 @@ function Profile() {
 
           {!isEditing ? (
             <>
-              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                 <div>
                   <h5 className="fw-bold mb-1">
                     <i className="bi bi-person-lines-fill text-primary me-2"></i>
                     Profile Information
                   </h5>
 
-                  <p className="glass-section-description">
+                  <p className="glass-section-description mb-0">
                     Your personal account details
                   </p>
                 </div>
@@ -537,7 +665,7 @@ function Profile() {
                       Email Address
                     </span>
 
-                    <p className="profile-information-value">
+                    <p className="profile-information-value profile-email-value">
                       {user.email}
                     </p>
                   </div>
@@ -603,7 +731,7 @@ function Profile() {
                   Edit Profile
                 </h5>
 
-                <p className="glass-section-description">
+                <p className="glass-section-description mb-0">
                   Update your personal information
                 </p>
               </div>
@@ -640,6 +768,7 @@ function Profile() {
                     className="form-control"
                     value={user.email}
                     disabled
+                    readOnly
                   />
 
                   <span className="input-group-text profile-locked-icon">
@@ -720,6 +849,7 @@ function Profile() {
                       user.createdAt
                     )}
                     disabled
+                    readOnly
                   />
 
                   <span className="input-group-text profile-locked-icon">
@@ -759,140 +889,155 @@ function Profile() {
         </div>
 
         {/* Security settings */}
-        <div className="glass-inner-card text-start">
+        <div className="glass-inner-card security-card">
 
           <button
             type="button"
-            className="profile-security-header"
-            onClick={() => {
-              setShowPasswordForm(
-                !showPasswordForm
-              );
-
-              setPasswordError("");
-              setPasswordSuccess("");
-            }}
+            className="security-card-header"
+            onClick={toggleSecuritySettings}
+            aria-expanded={showPasswordForm}
           >
-            <div>
-              <h5 className="fw-bold mb-1">
-                <i className="bi bi-shield-lock text-primary me-2"></i>
-                Security Settings
-              </h5>
+            <div className="security-title-area">
+              <div className="security-icon">
+                <i className="bi bi-shield-lock-fill"></i>
+              </div>
 
-              <p className="glass-section-description">
-                Change your password or delete your
-                account
-              </p>
+              <div>
+                <h4 className="security-title">
+                  Security Settings
+                </h4>
+
+                <p className="security-subtitle">
+                  Change your password or manage your
+                  account
+                </p>
+              </div>
             </div>
 
             <i
-              className={`bi bi-chevron-${
-                showPasswordForm ? "up" : "down"
-              }`}
+              className={`bi ${
+                showPasswordForm
+                  ? "bi-chevron-up"
+                  : "bi-chevron-down"
+              } security-chevron`}
             ></i>
           </button>
 
           {showPasswordForm && (
-            <div className="profile-security-content">
+            <div className="security-content">
 
               {passwordError && (
                 <div className="alert alert-danger">
-                  <i className="bi bi-exclamation-circle me-2"></i>
+                  <i className="bi bi-exclamation-circle-fill me-2"></i>
                   {passwordError}
                 </div>
               )}
 
               {passwordSuccess && (
                 <div className="alert alert-success">
-                  <i className="bi bi-check-circle me-2"></i>
+                  <i className="bi bi-check-circle-fill me-2"></i>
                   {passwordSuccess}
                 </div>
               )}
 
               <form onSubmit={handlePasswordChange}>
+                <div className="row g-3">
 
-                <div className="mb-3">
-                  <label
-                    htmlFor="current-password"
-                    className="form-label fw-semibold"
-                  >
-                    Current Password
-                  </label>
+                  <div className="col-12">
+                    <label
+                      htmlFor="current-password"
+                      className="form-label fw-semibold"
+                    >
+                      Current Password
+                    </label>
 
-                  <input
-                    id="current-password"
-                    type="password"
-                    className="form-control"
-                    placeholder="Enter current password"
-                    required
-                    value={
-                      passwordData.currentPassword
-                    }
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        currentPassword:
-                          e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-lock"></i>
+                      </span>
 
-                <div className="mb-3">
-                  <label
-                    htmlFor="new-password"
-                    className="form-label fw-semibold"
-                  >
-                    New Password
-                  </label>
+                      <input
+                        id="current-password"
+                        type="password"
+                        name="currentPassword"
+                        className="form-control"
+                        placeholder="Enter your current password"
+                        value={
+                          passwordData.currentPassword
+                        }
+                        onChange={
+                          handlePasswordInputChange
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
 
-                  <input
-                    id="new-password"
-                    type="password"
-                    className="form-control"
-                    placeholder="Enter new password"
-                    required
-                    value={passwordData.newPassword}
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        newPassword:
-                          e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                  <div className="col-md-6">
+                    <label
+                      htmlFor="new-password"
+                      className="form-label fw-semibold"
+                    >
+                      New Password
+                    </label>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="confirm-new-password"
-                    className="form-label fw-semibold"
-                  >
-                    Confirm New Password
-                  </label>
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-key"></i>
+                      </span>
 
-                  <input
-                    id="confirm-new-password"
-                    type="password"
-                    className="form-control"
-                    placeholder="Confirm new password"
-                    required
-                    value={
-                      passwordData.confirmPassword
-                    }
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        confirmPassword:
-                          e.target.value,
-                      })
-                    }
-                  />
+                      <input
+                        id="new-password"
+                        type="password"
+                        name="newPassword"
+                        className="form-control"
+                        placeholder="Enter new password"
+                        value={
+                          passwordData.newPassword
+                        }
+                        onChange={
+                          handlePasswordInputChange
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label
+                      htmlFor="confirm-password"
+                      className="form-label fw-semibold"
+                    >
+                      Confirm Password
+                    </label>
+
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-check-circle"></i>
+                      </span>
+
+                      <input
+                        id="confirm-password"
+                        type="password"
+                        name="confirmPassword"
+                        className="form-control"
+                        placeholder="Confirm new password"
+                        value={
+                          passwordData.confirmPassword
+                        }
+                        onChange={
+                          handlePasswordInputChange
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
                 </div>
 
                 <button
                   type="submit"
-                  className="btn btn-primary w-100 mb-3"
+                  className="btn btn-primary mt-4"
                   disabled={isChangingPassword}
                 >
                   {isChangingPassword ? (
@@ -902,22 +1047,36 @@ function Profile() {
                     </>
                   ) : (
                     <>
-                      <i className="bi bi-key me-2"></i>
-                      Change Password
+                      <i className="bi bi-shield-check me-2"></i>
+                      Update Password
                     </>
                   )}
                 </button>
+              </form>
+
+              {/* Danger zone */}
+              <div className="danger-zone">
+                <div>
+                  <h5 className="danger-zone-title">
+                    Delete Account
+                  </h5>
+
+                  <p className="danger-zone-description">
+                    Permanently delete your account
+                    and all associated data.
+                  </p>
+                </div>
 
                 <button
                   type="button"
-                  className="btn btn-outline-danger w-100"
+                  className="btn btn-outline-danger"
                   onClick={handleDeleteAccount}
                 >
                   <i className="bi bi-trash me-2"></i>
                   Delete Account
                 </button>
+              </div>
 
-              </form>
             </div>
           )}
 

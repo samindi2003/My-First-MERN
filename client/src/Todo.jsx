@@ -373,19 +373,24 @@ function Todo() {
               </label>
 
               <DatePicker
-                selected={dueDate}
-                onChange={(date) =>
-                  setDueDate(date)
-                }
-                showTimeSelect
-                timeIntervals={15}
-                dateFormat="MMMM d, yyyy h:mm aa"
-                placeholderText="Select date and time"
-                minDate={new Date()}
-                className="form-control"
-                wrapperClassName="w-100"
-                isClearable
-              />
+  selected={dueDate}
+  onChange={(date) => setDueDate(date)}
+  showTimeSelect
+  timeFormat="hh:mm aa"
+  timeIntervals={15}
+  timeCaption="Time"
+  dateFormat="MMMM d, yyyy h:mm aa"
+  placeholderText="Select date and time"
+  className="form-control"
+  minDate={new Date()}
+  calendarStartDay={1}
+  popperPlacement="bottom-start"
+  shouldCloseOnSelect={false}
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select"
+  portalId="root"
+/>
             </div>
 
             <div className="col-md-2">
