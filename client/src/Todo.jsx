@@ -83,16 +83,19 @@ function Todo() {
       setMessage("");
 
       const response = await axios.post(
-        "http://localhost:5001/api/todos",
-        {
-          title: title.trim(),
-          dueDate: dueDate
-            ? dueDate.toISOString()
-            : null,
-        },
-        authHeader
-      );
-
+  "http://localhost:5001/api/todos",
+  {
+    title: title.trim(),
+    dueDate: dueDate
+      ? dueDate.toISOString()
+      : null,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
       setTodos((previousTodos) => [
         response.data.todo,
         ...previousTodos,

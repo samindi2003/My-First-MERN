@@ -1,25 +1,25 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #eff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
+  --text: #42526e;
+  --text-h: #091e42;
+  --bg: #f4f6fa;
+  --border: #dfe1e6;
+  --code-bg: #ebecf0;
 
-  --accent: #0d6efd;
-  --accent-bg: rgba(13, 110, 253, 0.1);
-  --accent-border: rgba(13, 110, 253, 0.4);
+  --accent: #00b8d9;
+  --accent-bg: rgba(0, 184, 217, 0.1);
+  --accent-border: rgba(0, 184, 217, 0.4);
 
-  --glass-background: rgba(255, 255, 255, 0.58);
-  --glass-border: rgba(255, 255, 255, 0.7);
-  --glass-inner-background: rgba(255, 255, 255, 0.42);
-  --glass-input-background: rgba(255, 255, 255, 0.68);
+  --glass-background: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-inner-background: rgba(255, 255, 255, 0.45);
+  --glass-input-background: rgba(255, 255, 255, 0.75);
 
   --shadow:
-    rgba(0, 0, 0, 0.12) 0 10px 30px,
-    rgba(0, 0, 0, 0.06) 0 4px 10px;
+    rgba(9, 30, 66, 0.15) 0 12px 36px,
+    rgba(9, 30, 66, 0.08) 0 4px 12px;
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
+  --sans: "Outfit", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Outfit", system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -46,30 +46,30 @@
 /* ========================= */
 
 [data-bs-theme="dark"] {
-  --text: #c4c7ce;
-  --text-h: #f8f9fa;
-  --bg: #16171d;
-  --border: #343640;
-  --code-bg: #1f2028;
+  --text: #b3bac5;
+  --text-h: #ffffff;
+  --bg: #09101c;
+  --border: #1e2638;
+  --code-bg: #141c2c;
 
-  --accent: #f8f9fa;
-  --accent-bg: rgba(248, 249, 250, 0.1);
-  --accent-border: rgba(248, 249, 250, 0.45);
+  --accent: #00e5ff;
+  --accent-bg: rgba(0, 229, 255, 0.15);
+  --accent-border: rgba(0, 229, 255, 0.5);
 
-  --glass-background: rgba(20, 20, 25, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-inner-background: rgba(255, 255, 255, 0.07);
-  --glass-input-background: rgba(255, 255, 255, 0.09);
+  --glass-background: rgba(14, 22, 40, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-inner-background: rgba(255, 255, 255, 0.05);
+  --glass-input-background: rgba(0, 0, 0, 0.2);
 
   --shadow:
-    rgba(0, 0, 0, 0.45) 0 12px 35px,
-    rgba(0, 0, 0, 0.25) 0 4px 12px;
+    rgba(0, 229, 255, 0.08) 0 12px 35px,
+    rgba(0, 0, 0, 0.4) 0 4px 12px;
 
-  --bs-primary: #f8f9fa;
-  --bs-primary-rgb: 248, 249, 250;
-  --bs-primary-text-emphasis: #f8f9fa;
-  --bs-link-color: #f8f9fa;
-  --bs-link-hover-color: #e9ecef;
+  --bs-primary: #00e5ff;
+  --bs-primary-rgb: 0, 229, 255;
+  --bs-primary-text-emphasis: #00e5ff;
+  --bs-link-color: #00e5ff;
+  --bs-link-hover-color: #79f2ff;
 }
 
 /* ========================= */
@@ -77,40 +77,41 @@
 /* ========================= */
 
 [data-bs-theme="dark"] .btn-primary {
-  --bs-btn-bg: #f8f9fa;
-  --bs-btn-border-color: #f8f9fa;
-  --bs-btn-hover-bg: #e9ecef;
-  --bs-btn-hover-border-color: #e9ecef;
-  --bs-btn-color: #212529;
-  --bs-btn-hover-color: #212529;
+  --bs-btn-bg: #00b8d9;
+  --bs-btn-border-color: #00b8d9;
+  --bs-btn-hover-bg: #00e5ff;
+  --bs-btn-hover-border-color: #00e5ff;
+  --bs-btn-color: #09101c;
+  --bs-btn-hover-color: #09101c;
+  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
 }
 
 [data-bs-theme="dark"] .btn-outline-primary {
-  --bs-btn-color: #f8f9fa;
-  --bs-btn-border-color: #f8f9fa;
-  --bs-btn-hover-bg: #f8f9fa;
-  --bs-btn-hover-border-color: #f8f9fa;
-  --bs-btn-hover-color: #212529;
+  --bs-btn-color: #00e5ff;
+  --bs-btn-border-color: #00e5ff;
+  --bs-btn-hover-bg: #00e5ff;
+  --bs-btn-hover-border-color: #00e5ff;
+  --bs-btn-hover-color: #09101c;
 }
 
 [data-bs-theme="dark"] .text-primary {
-  color: #f8f9fa !important;
+  color: #00e5ff !important;
 }
 
 [data-bs-theme="dark"] .text-success {
-  color: #75d69c !important;
+  color: #36b37e !important;
 }
 
 [data-bs-theme="dark"] .text-warning {
-  color: #ffd166 !important;
+  color: #ffab00 !important;
 }
 
 [data-bs-theme="dark"] .text-danger {
-  color: #ff7f8b !important;
+  color: #ff5630 !important;
 }
 
 [data-bs-theme="dark"] .text-info {
-  color: #7bdff2 !important;
+  color: #0065ff !important;
 }
 
 /* ========================= */
@@ -256,11 +257,11 @@ code {
 }
 
 [data-bs-theme="dark"] .video-background iframe {
-  filter: grayscale(100%) brightness(0.38);
+  filter: grayscale(60%) brightness(0.2) hue-rotate(190deg) sepia(30%) saturate(200%);
 }
 
 [data-bs-theme="dark"] .video-background::after {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(9, 16, 28, 0.7);
 }
 
 /* ========================= */

@@ -4,10 +4,10 @@ import "./Landing.css";
 function Landing() {
   return (
     <main className="landing-page">
-      {/* Decorative background circles */}
-      <div className="landing-circle circle-one"></div>
-      <div className="landing-circle circle-two"></div>
-      <div className="landing-circle circle-three"></div>
+      {/* Decorative background icons */}
+      <div className="landing-floating-icon icon-one">⚛️</div>
+      <div className="landing-floating-icon icon-two">🍃</div>
+      <div className="landing-floating-icon icon-three">⚡</div>
 
       {/* Main Hero Section */}
       <section className="landing-hero">
@@ -106,7 +106,7 @@ function Landing() {
       {/* Footer */}
       <footer className="landing-footer">
         <p>
-          Built with <span className="footer-heart">❤️</span> using MERN Stack
+          Built with <span className="footer-heart">⚛️</span> using MERN Stack
         </p>
 
         <small>
