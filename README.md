@@ -60,6 +60,8 @@ The goal of this project is to learn full-stack web development by building a re
 ## 🆕 Recent Updates
 
 - Enhanced the Landing Page with modern glassmorphism design and animated backgrounds.
+- Added a full-page custom MERN watermark background to the landing page.
+- Redesigned landing page sections with glowing blue borders and pulsing animations.
 - Improved the Todo List UI for better task management and responsiveness.
 - Upgraded the overall color scheme and styling across the frontend components.
 

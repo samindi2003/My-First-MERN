@@ -4,14 +4,9 @@ import "./Landing.css";
 function Landing() {
   return (
     <main className="landing-page">
-      {/* Decorative background icons */}
-      <div className="landing-floating-icon icon-one">⚛️</div>
-      <div className="landing-floating-icon icon-two">🍃</div>
-      <div className="landing-floating-icon icon-three">⚡</div>
-
       {/* Main Hero Section */}
       <section className="landing-hero">
-        <div className="landing-rocket">🚀</div>
+        <img src="/mern.png" alt="MERN Stack Logo" className="landing-logo" />
 
         <p className="landing-welcome">
           Welcome to
